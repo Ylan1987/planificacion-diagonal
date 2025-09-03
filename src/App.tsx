@@ -471,12 +471,27 @@ const submitRecur = async (i: number) => {
     if (histErr) throw histErr;
 
     // 3) Avanzar próxima fecha en "recs"
+    // 2) Avanzar próxima fecha (usar upsert incluyendo freq_days)
     const next = addDays(new Date(r.nextAt), r.freqDays).toISOString();
-    const { error: recErr } = await supabase.from("recs").upsert({
-      code: r.code,
-      next_at: next,
-    });
-    if (recErr) throw recErr;
+
+    const { error: recErr } = await supabase
+      .from("recs")
+      .upsert(
+        {
+          code: r.code,
+          next_at: next,
+          freq_days: r.freqDays,   // <— CLAVE: mandarlo para no violar NOT NULL
+          name: r.name             // opcional, pero ayuda si la fila no existía
+        },
+        { onConflict: "code" }     // asegura que choque por PK y haga UPDATE
+      );
+
+    if (recErr) {
+      alert("Error al actualizar próxima fecha");
+      console.error(recErr);
+      return;
+    }
+
 
     // 4) Reflejar en UI
     const copy = [...recs];
