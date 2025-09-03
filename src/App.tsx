@@ -40,7 +40,7 @@ const dataUrlToObjectUrl = (du: string) => {
   return URL.createObjectURL(new Blob([u8], { type: "application/pdf" }));
 };
 
-// data:URL -> Blob URL; si es URL pública (Supabase), se usa tal cual.
+// data:URL -> Blob URL; si ya es URL pública (Supabase), se usa tal cual.
 const toPdfHref = (s: string) => (s?.startsWith("data:") ? dataUrlToObjectUrl(s) : s);
 
 // Sanea nombres de archivos (acentos, espacios, paréntesis, etc.)
@@ -78,7 +78,7 @@ type OneShot = {
   uploadedAt?: string;
   draftDrive?: string;
   draftPdf?: PDFRef | null;
-  _draftPdfFile?: File | null; // <-- solo una vez
+  _draftPdfFile?: File | null; // UNA sola vez
 };
 
 type RecurItem = {
@@ -175,7 +175,7 @@ const recurBase: RecurItem[] = [
   },
   {
     code: "lead",
-    name: "Tiempo promedio de pedidos en Planificación (Semanal)",
+    name: "Tiempo promedio de pedidos en Planificación2 (Semanal)",
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
     history: [],
@@ -291,6 +291,7 @@ export default function App() {
               uploadedAt: row?.uploaded_at ?? undefined,
               draftDrive: "",
               draftPdf: null,
+              _draftPdfFile: null,
             } as OneShot;
           });
           setOnes(merged);
@@ -324,7 +325,7 @@ export default function App() {
             const row = recRows.find((r: any) => r.code === base.code);
             const hist = (histRows || []).filter((h: any) => h.rec_code === base.code);
             return {
-              ...base, // mantiene freqDays de base
+              ...base, // mantiene freqDays del base
               nextAt: row?.next_at ?? base.nextAt,
               draftDrive: "",
               draftPdf: null,
@@ -349,8 +350,7 @@ export default function App() {
               name: r.name,
               freq_days: r.freqDays, // CLAVE
               next_at: r.nextAt,
-            })),
-            { onConflict: "code" }
+            }))
           );
         }
       } catch (e) {
@@ -362,17 +362,17 @@ export default function App() {
   // Guardar snapshot en localStorage (fallback)
   React.useEffect(() => saveState({ ones, recs }), [ones, recs]);
 
-  /* -------- One-shot -------- */
+  /* ================= One-shot ================= */
   const pickPdfOne = async (i: number, f: File | null) => {
     if (!f || f.type !== "application/pdf") return;
     if (f.size > 12 * 1024 * 1024) {
       alert("PDF muy grande (>12MB).");
       return;
     }
-    const du = await fileToDataUrl(f); // solo para mostrar nombre
+    const du = await fileToDataUrl(f);
     const copy = [...ones];
     copy[i].draftPdf = { name: f.name, dataUrl: du };
-    copy[i]._draftPdfFile = f; // guardo el File real para subir
+    copy[i]._draftPdfFile = f;
     setOnes(copy);
   };
 
@@ -411,7 +411,7 @@ export default function App() {
     }
   };
 
-  /* -------- Recurrentes -------- */
+  /* ================ Recurrentes ================ */
   const pickPdfRecur = async (i: number, f: File | null) => {
     if (!f || f.type !== "application/pdf") return;
     if (f.size > 12 * 1024 * 1024) {
@@ -421,7 +421,7 @@ export default function App() {
     const du = await fileToDataUrl(f);
     const copy = [...recs];
     copy[i].draftPdf = { name: f.name, dataUrl: du };
-    copy[i]._draftPdfFile = f; // guardo el File real para subir
+    copy[i]._draftPdfFile = f;
     setRecs(copy);
   };
 
@@ -450,17 +450,12 @@ export default function App() {
       const next = addDays(new Date(r.nextAt), r.freqDays).toISOString();
 
       // 4) Upsert rec (SIEMPRE con freq_days)
-      const { error: recErr } = await supabase
-        .from("recs")
-        .upsert(
-          {
-            code: r.code,
-            name: r.name,
-            next_at: next,
-            freq_days: r.freqDays, // CLAVE: evita NOT NULL
-          },
-          { onConflict: "code" }
-        );
+      const { error: recErr } = await supabase.from("recs").upsert({
+        code: r.code,
+        name: r.name,
+        next_at: next,
+        freq_days: r.freqDays, // <-- evita NOT NULL
+      });
       if (recErr) throw recErr;
 
       // 5) Reflejar en UI
@@ -696,6 +691,7 @@ export default function App() {
               const canSubmit = !!r.draftDrive && !!r.draftPdf;
               const last = r.history[0];
               const lastPdfUrl = last ? toPdfHref(last.pdf.dataUrl) : null;
+
               return (
                 <div key={r.code} className="border-t border-neutral-800 bg-neutral-900/40">
                   {/* Fila fija: [toggle | desc | próxima | pdf | link | subir] */}
@@ -785,8 +781,10 @@ export default function App() {
                     </button>
                   </div>
 
+                  {/* Panel desplegable: Detalles + Historial */}
                   {opened && (
                     <div className="px-4 pb-4">
+                      {/* Detalles */}
                       {r.details?.length ? (
                         <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-3 py-2 mb-3">
                           <div className="text-sm font-semibold mb-1" style={{ color: brand }}>
@@ -800,6 +798,7 @@ export default function App() {
                         </div>
                       ) : null}
 
+                      {/* Historial */}
                       <div className="rounded-xl border border-neutral-800 overflow-hidden">
                         <div className="grid grid-cols-[140px_160px_1fr_1fr] gap-2 bg-neutral-900/60 px-3 py-2 text-sm items-center">
                           <div className="text-center">Prometida</div>
