@@ -11,7 +11,6 @@ const fmtDM = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
 const fmtDMY = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(-2)}`;
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
 const weekIndex = (d: Date) => Math.max(0, Math.min(11, Math.floor((d.getTime() - PROJECT_START.getTime()) / (7 * 86400000))));
-const nextWeekday = (from: Date, weekday: number) => { const x = new Date(from); const add = (weekday - x.getDay() + 7) % 7; x.setDate(x.getDate() + add); x.setHours(9,0,0,0); return x; };
 
 type PDFRef = { name: string; dataUrl: string };
 
@@ -48,6 +47,7 @@ const oneBase: Omit<OneShot,"draftDrive"|"draftPdf"|"pdf"|"driveLink"|"uploadedA
 
 const recurBase: RecurItem[] = [
   {"code":"ventas_pipeline","name":"Revisión de pipeline (Semanal)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Reporte semanal pipeline."]},
+  {"code":"ventas_postventa","name":"Seguimiento de postventa (Cada 15 días)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Feedback de clientes y reclamos."]},
   {"code":"ventas_kpis","name":"Reporte de KPIs comerciales (Mensual)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Ventas, tiempos y hit rate."]}
 ];
 

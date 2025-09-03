@@ -11,7 +11,6 @@ const fmtDM = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
 const fmtDMY = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(-2)}`;
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
 const weekIndex = (d: Date) => Math.max(0, Math.min(11, Math.floor((d.getTime() - PROJECT_START.getTime()) / (7 * 86400000))));
-const nextWeekday = (from: Date, weekday: number) => { const x = new Date(from); const add = (weekday - x.getDay() + 7) % 7; x.setDate(x.getDate() + add); x.setHours(9,0,0,0); return x; };
 
 type PDFRef = { name: string; dataUrl: string };
 
@@ -47,8 +46,9 @@ const oneBase: Omit<OneShot,"draftDrive"|"draftPdf"|"pdf"|"driveLink"|"uploadedA
 ];
 
 const recurBase: RecurItem[] = [
-  {"code":"diseno_min_diaria","name":"Minuta de reunión diaria (Diaria)","freqDays":1,"nextAt":PROJECT_START.toISOString(),"history":[],"details":["Minuta diaria + agenda."]},
-  {"code":"diseno_tablero","name":"Actualización de tablero de diseño (Semanal)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Screenshot/Export con avances."]}
+  {"code":"diseno_tablero","name":"Actualización de tablero de diseño (Semanal)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Screenshot/Export con avances."]},
+  {"code":"diseno_normas","name":"Revisión de estándares y plantillas (Cada 15 días)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Ajustes de guías y librerías."]},
+  {"code":"diseno_reporte","name":"Reporte mensual de diseño (Cada 30 días)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Resumen de entregables y métricas."]}
 ];
 
 export default function Diseno() {

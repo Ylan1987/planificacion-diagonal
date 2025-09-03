@@ -11,7 +11,6 @@ const fmtDM = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
 const fmtDMY = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(-2)}`;
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
 const weekIndex = (d: Date) => Math.max(0, Math.min(11, Math.floor((d.getTime() - PROJECT_START.getTime()) / (7 * 86400000))));
-const nextWeekday = (from: Date, weekday: number) => { const x = new Date(from); const add = (weekday - x.getDay() + 7) % 7; x.setDate(x.getDate() + add); x.setHours(9,0,0,0); return x; };
 
 type PDFRef = { name: string; dataUrl: string };
 
@@ -48,7 +47,8 @@ const oneBase: Omit<OneShot,"draftDrive"|"draftPdf"|"pdf"|"driveLink"|"uploadedA
 
 const recurBase: RecurItem[] = [
   {"code":"taller_min_prod","name":"Minuta reunión de Producción (Semanal)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Minuta semanal + agenda."]},
-  {"code":"taller_5s","name":"Checklist de seguridad 5S (Quincenal)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Evidencias y pendientes 5S."]}
+  {"code":"taller_5s","name":"Checklist de seguridad 5S (Quincenal)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Evidencias y pendientes 5S."]},
+  {"code":"taller_mant_mensual","name":"Revisión mensual de mantenimiento (Cada 30 días)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Estado de mantenimiento y repuestos."]}
 ];
 
 export default function Taller() {
