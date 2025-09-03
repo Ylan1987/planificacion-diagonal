@@ -1,5 +1,6 @@
 import React from "react";
 import { Upload, Download, Paperclip, ChevronDown } from "lucide-react";
+import { supabase } from "./lib/supabase";
 
 /* ===== Config ===== */
 const brand = "#086c7c";
@@ -9,7 +10,10 @@ const WEEKS = 12;
 /* ===== Utilidades ===== */
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const fmtDM = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
-const fmtDMY = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(-2)}`;
+const fmtDMY = (d: Date) =>
+  `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(
+    d.getFullYear()
+  ).slice(-2)}`;
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
 const weekIndex = (d: Date) =>
   Math.max(0, Math.min(11, Math.floor((d.getTime() - PROJECT_START.getTime()) / (7 * 86400000))));
@@ -38,6 +42,17 @@ const dataUrlToObjectUrl = (du: string) => {
   return URL.createObjectURL(new Blob([u8], { type: "application/pdf" }));
 };
 
+// Si es data:URL -> Blob URL; si es URL pública (Supabase), se usa tal cual.
+const toPdfHref = (s: string) => (s?.startsWith("data:") ? dataUrlToObjectUrl(s) : s);
+
+// Subida a Supabase Storage y devuelve URL pública
+const uploadPdfToStorage = async (file: File, key: string) => {
+  const { error } = await supabase.storage.from("entregables").upload(key, file, { upsert: true });
+  if (error) throw error;
+  const { data } = supabase.storage.from("entregables").getPublicUrl(key);
+  return { publicUrl: data.publicUrl, path: key };
+};
+
 /* ===== Tipos ===== */
 type OneShot = {
   code: string;
@@ -52,6 +67,7 @@ type OneShot = {
   uploadedAt?: string;
   draftDrive?: string;
   draftPdf?: PDFRef | null;
+  _draftPdfFile?: File | null; // <- solo una vez
 };
 
 type RecurItem = {
@@ -71,10 +87,14 @@ type RecurItem = {
   draftPdf?: PDFRef | null;
   history: { promisedAt: string; uploadedAt: string; driveLink: string; pdf: PDFRef }[];
   details?: string[];
+  _draftPdfFile?: File | null;
 };
 
 /* ===== Datos base ===== */
-const oneBase: Omit<OneShot, "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "uploadedAt">[] = [
+const oneBase: Omit<
+  OneShot,
+  "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "uploadedAt" | "_draftPdfFile"
+>[] = [
   {
     code: "prod10",
     name: "Elegir 10 productos (coord. Comercial)",
@@ -120,11 +140,8 @@ const oneBase: Omit<OneShot, "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "
     dep: "Dep.: Rutas productivas",
     start: addDays(PROJECT_START, 57).toISOString(),
     end: addDays(PROJECT_START, 76).toISOString(),
-    details: [
-      "Excel con tiempos inicio / por cantidad / cierre (actualizable).",
-    ],
+    details: ["Excel con tiempos inicio / por cantidad / cierre (actualizable)."],
   },
-  // Nueva paralela desde S2 (1 semana)
   {
     code: "tercerizados_listado",
     name: "Listar actividades tercerizadas (con Pablo) + tiempos",
@@ -160,8 +177,7 @@ const recurBase: RecurItem[] = [
   },
   {
     code: "changelog",
-    name:
-      "Cambios en tiempos de actividades del taller (Cada 15 días)",
+    name: "Cambios en tiempos de actividades del taller (Cada 15 días)",
     freqDays: 15,
     nextAt: addDays(PROJECT_START, 15).toISOString(),
     history: [],
@@ -222,7 +238,7 @@ const recurBase: RecurItem[] = [
   },
 ];
 
-/* ===== Persistencia local (solo UI) ===== */
+/* ===== Persistencia local (fallback UI) ===== */
 const LS_KEY = "delegacion-ui-v6";
 const loadState = () => {
   try {
@@ -256,6 +272,93 @@ export default function App() {
   const [ones, setOnes] = React.useState<OneShot[]>(initial.ones);
   const [recs, setRecs] = React.useState<RecurItem[]>(initial.recs);
   const [open, setOpen] = React.useState<Record<string | number, boolean>>({});
+
+  // Carga inicial desde Supabase (pisará el estado local si hay datos)
+  React.useEffect(() => {
+    (async () => {
+      try {
+        // --- ONES ---
+        const { data: onesRows, error: onesErr } = await supabase.from("ones").select("*");
+        if (onesErr) throw onesErr;
+
+        if (onesRows?.length) {
+          const merged = oneBase.map((base) => {
+            const row = onesRows.find((r: any) => r.code === base.code);
+            return {
+              ...base,
+              driveLink: row?.drive_link ?? undefined,
+              pdf: row?.pdf_path
+                ? { name: (row.pdf_path as string).split("/").pop() || "archivo.pdf", dataUrl: row.pdf_path }
+                : undefined,
+              uploadedAt: row?.uploaded_at ?? undefined,
+              draftDrive: "",
+              draftPdf: null,
+            } as OneShot;
+          });
+          setOnes(merged);
+        } else {
+          // Seed inicial si está vacío
+          await supabase.from("ones").upsert(
+            oneBase.map((o) => ({
+              code: o.code,
+              name: o.name,
+              resp: o.resp,
+              dep: o.dep ?? null,
+              start: o.start,
+              end: o.end,
+              details: o.details,
+            }))
+          );
+        }
+
+        // --- RECS + HISTORIAL ---
+        const { data: recRows, error: recErr } = await supabase.from("recs").select("*");
+        if (recErr) throw recErr;
+
+        const { data: histRows, error: histErr } = await supabase
+          .from("rec_history")
+          .select("*")
+          .order("uploaded_at", { ascending: false });
+        if (histErr) throw histErr;
+
+        if (recRows?.length) {
+          const mergedRecs = recurBase.map((base) => {
+            const row = recRows.find((r: any) => r.code === base.code);
+            const hist = (histRows || []).filter((h: any) => h.rec_code === base.code);
+            return {
+              ...base,
+              nextAt: row?.next_at ?? base.nextAt,
+              draftDrive: "",
+              draftPdf: null,
+              history: hist.map((h: any) => ({
+                promisedAt: h.promised_at,
+                uploadedAt: h.uploaded_at,
+                driveLink: h.drive_link,
+                pdf: {
+                  name: (h.pdf_path as string).split("/").pop() || "archivo.pdf",
+                  dataUrl: h.pdf_path, // URL pública del bucket
+                },
+              })),
+            } as RecurItem;
+          });
+          setRecs(mergedRecs);
+        } else {
+          await supabase.from("recs").upsert(
+            recurBase.map((r) => ({
+              code: r.code,
+              name: r.name,
+              freq_days: r.freqDays,
+              next_at: r.nextAt,
+            }))
+          );
+        }
+      } catch (e) {
+        console.error("Supabase load error:", e);
+      }
+    })();
+  }, []);
+
+  // Guardar snapshot en localStorage (fallback)
   React.useEffect(() => saveState({ ones, recs }), [ones, recs]);
 
   /* One-shot */
@@ -265,23 +368,45 @@ export default function App() {
       alert("PDF muy grande (>12MB).");
       return;
     }
-    const du = await fileToDataUrl(f);
+    const du = await fileToDataUrl(f); // solo para mostrar nombre
     const copy = [...ones];
     copy[i].draftPdf = { name: f.name, dataUrl: du };
+    copy[i]._draftPdfFile = f; // guardo el File real para subir
     setOnes(copy);
   };
-  const submitOne = (i: number) => {
+
+  const submitOne = async (i: number) => {
     const t = ones[i];
-    if (!t.draftPdf || !t.draftDrive) return;
+    if (!t._draftPdfFile || !t.draftDrive) return;
+
+    // 1) Subir a Storage
+    const key = `ones/${t.code}/${Date.now()}_${t._draftPdfFile.name}`;
+    const up = await uploadPdfToStorage(t._draftPdfFile, key);
     const now = new Date().toISOString();
+
+    // 2) Guardar en DB
+    const { error } = await supabase.from("ones").upsert({
+      code: t.code,
+      drive_link: t.draftDrive,
+      pdf_path: up.publicUrl,
+      uploaded_at: now,
+    });
+    if (error) {
+      alert("Error al guardar en la base");
+      console.error(error);
+      return;
+    }
+
+    // 3) Reflejar en UI (bloquear)
     const copy = [...ones];
     copy[i] = {
       ...t,
-      pdf: t.draftPdf,
+      pdf: { name: t._draftPdfFile.name, dataUrl: up.publicUrl },
       driveLink: t.draftDrive,
       uploadedAt: now,
       draftPdf: null,
       draftDrive: "",
+      _draftPdfFile: null,
     };
     setOnes(copy);
   };
@@ -296,23 +421,60 @@ export default function App() {
     const du = await fileToDataUrl(f);
     const copy = [...recs];
     copy[i].draftPdf = { name: f.name, dataUrl: du };
+    copy[i]._draftPdfFile = f; // guardo el File real para subir
     setRecs(copy);
   };
-  const submitRecur = (i: number) => {
+
+  const submitRecur = async (i: number) => {
     const r = recs[i];
-    if (!r.draftPdf || !r.draftDrive) return;
+    if (!r._draftPdfFile || !r.draftDrive) return;
+
+    // 1) Subir a Storage
+    const key = `recs/${r.code}/${Date.now()}_${r._draftPdfFile.name}`;
+    const up = await uploadPdfToStorage(r._draftPdfFile, key);
     const now = new Date().toISOString();
-    const entry = {
-      promisedAt: r.nextAt,
-      uploadedAt: now,
-      driveLink: r.draftDrive!,
-      pdf: r.draftPdf!,
-    };
+
+    // 2) Insertar historial
+    const { error: histErr } = await supabase.from("rec_history").insert({
+      rec_code: r.code,
+      promised_at: r.nextAt,
+      uploaded_at: now,
+      drive_link: r.draftDrive,
+      pdf_path: up.publicUrl,
+    });
+    if (histErr) {
+      alert("Error al guardar historial");
+      console.error(histErr);
+      return;
+    }
+
+    // 3) Avanzar próxima fecha
+    const next = addDays(new Date(r.nextAt), r.freqDays).toISOString();
+    const { error: recErr } = await supabase.from("recs").upsert({
+      code: r.code,
+      next_at: next,
+    });
+    if (recErr) {
+      alert("Error al actualizar próxima fecha");
+      console.error(recErr);
+      return;
+    }
+
+    // 4) Reflejar en UI
     const copy = [...recs];
-    copy[i].history = [entry, ...copy[i].history];
-    copy[i].nextAt = addDays(new Date(r.nextAt), r.freqDays).toISOString();
+    copy[i].history = [
+      {
+        promisedAt: r.nextAt,
+        uploadedAt: now,
+        driveLink: r.draftDrive,
+        pdf: { name: r._draftPdfFile.name, dataUrl: up.publicUrl },
+      },
+      ...copy[i].history,
+    ];
+    copy[i].nextAt = next;
     copy[i].draftDrive = "";
     copy[i].draftPdf = null;
+    copy[i]._draftPdfFile = null;
     setRecs(copy);
   };
 
@@ -322,9 +484,7 @@ export default function App() {
       {/* Header con logo exacto */}
       <header className="mx-auto max-w-[1400px] px-4 py-6 flex items-center gap-4">
         <img src="/diagonal.png" alt="Diagonal" className="h-7 w-auto" />
-        <h1 className="text-2xl font-semibold">
-          Delegación responsable de coordinación de Producción
-        </h1>
+        <h1 className="text-2xl font-semibold">Delegación responsable de coordinación de Producción</h1>
       </header>
 
       {/* Objetivo + Funciones clave */}
@@ -335,11 +495,9 @@ export default function App() {
               Objetivo
             </h3>
             <p className="text-neutral-200 mt-1">
-              Coordinar todo el flujo productivo, asegurando que los trabajos
-              tengan asignados recursos (MP, humanos y máquinas), tiempos y
-              prioridades antes de entrar en producción. Mejorar el flujo de
-              comunicación entre comercial y producción, e interno de la
-              producción. Velar por el cumplimiento de la planificación y
+              Coordinar todo el flujo productivo, asegurando que los trabajos tengan asignados recursos (MP, humanos y
+              máquinas), tiempos y prioridades antes de entrar en producción. Mejorar el flujo de comunicación entre
+              comercial y producción, e interno de la producción. Velar por el cumplimiento de la planificación y
               establecer gatillos de emergencia cuando no se cumple.
             </p>
           </div>
@@ -349,32 +507,34 @@ export default function App() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Ingreso y orden de trabajo:</b> centralizar pedidos; asignar
-                procesos/actividades (personas y máquinas con tiempos); asignar
-                fecha de entrega solicitada; clasificar por prioridad.
+                <b>Ingreso y orden de trabajo:</b> centralizar pedidos; asignar procesos/actividades (personas y
+                máquinas con tiempos); asignar fecha de entrega solicitada; clasificar por prioridad.
               </li>
               <li>
-                <b>Verificación de viabilidad:</b> confirmar disponibilidad de
-                papel y MP; revisar capacidad de máquinas y personal.
+                <b>Verificación de viabilidad:</b> confirmar disponibilidad de papel y MP; revisar capacidad de máquinas
+                y personal.
               </li>
               <li>
-                <b>Asignación de recursos:</b> definir máquinas y terminaciones
-                más eficientes (incluye tercerización si aplica); agrupar
-                trabajos similares.
+                <b>Asignación de recursos:</b> definir máquinas y terminaciones más eficientes (incluye tercerización si
+                aplica); agrupar trabajos similares.
               </li>
               <li>
-                <b>Definición de tiempos de entrega:</b> estimar tiempos reales
-                + margen; estándar y express.
+                <b>Definición de tiempos de entrega:</b> estimar tiempos reales + margen; estándar y express.
               </li>
               <li>
-                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;
-                ajustar ante urgencias o bloqueos.
+                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación; ajustar ante urgencias o bloqueos.
               </li>
             </ul>
           </div>
           <div>
             <h3 className="text-lg font-semibold" style={{ color: brand }}>
-              <a target="_blank" href="https://docs.google.com/document/d/1YriXyG9mRkxBuSuMWO1uXPZiAC8V8lTOz0_L-5YOaKc/edit?usp=sharing ">Más detalles click acá</a>
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href="https://docs.google.com/document/d/1YriXyG9mRkxBuSuMWO1uXPZiAC8V8lTOz0_L-5YOaKc/edit?usp=sharing"
+              >
+                Más detalles click acá
+              </a>
             </h3>
           </div>
         </div>
@@ -384,15 +544,9 @@ export default function App() {
         {/* Semanas */}
         <section className="mb-4">
           <h3 className="text-xl font-semibold mb-3">Cronograma (Gantt)</h3>
-          <div
-            className="grid gap-2 text-xs"
-            style={{ gridTemplateColumns: "repeat(12, minmax(0,1fr))" }}
-          >
+          <div className="grid gap-2 text-xs" style={{ gridTemplateColumns: "repeat(12, minmax(0,1fr))" }}>
             {weeks.map((d, i) => (
-              <div
-                key={i}
-                className="h-12 rounded-xl bg-neutral-800/70 flex flex-col items-center justify-center"
-              >
+              <div key={i} className="h-12 rounded-xl bg-neutral-800/70 flex flex-col items-center justify-center">
                 <div>{fmtDM(d)}</div>
                 <div className="opacity-75">{`S${i + 1}`}</div>
               </div>
@@ -405,44 +559,30 @@ export default function App() {
           {ones.map((t, i) => {
             const locked = !!t.uploadedAt;
             const hasDrafts = !!t.draftPdf && !!t.draftDrive;
-            const pdfUrl = t.pdf ? dataUrlToObjectUrl(t.pdf.dataUrl) : null;
+            const pdfUrl = t.pdf ? toPdfHref(t.pdf.dataUrl) : null;
             const sIdx = weekIndex(new Date(t.start));
             const eIdx = weekIndex(new Date(t.end));
 
             return (
-              <div
-                key={t.code}
-                className="rounded-2xl bg-neutral-900/70 border border-neutral-800 p-4"
-              >
+              <div key={t.code} className="rounded-2xl bg-neutral-900/70 border border-neutral-800 p-4">
                 <div className="flex items-start justify-between gap-3">
                   <button
                     onClick={() => setOpen((s) => ({ ...s, [i]: !s[i] }))}
                     className="h-9 w-9 inline-flex items-center justify-center rounded-xl border border-neutral-700"
                     title="Ver detalles"
                   >
-                    <ChevronDown
-                      size={18}
-                      className={`transition-transform ${
-                        open[i] ? "rotate-180" : ""
-                      }`}
-                    />
+                    <ChevronDown size={18} className={`transition-transform ${open[i] ? "rotate-180" : ""}`} />
                   </button>
 
                   <div className="flex-1 min-w-0">
                     <h4 className="text-lg font-semibold">{t.name}</h4>
-                    <div className="text-sm text-neutral-400">
-                      Resp.: {t.resp} {t.dep ? ` · ${t.dep}` : ""}
-                    </div>
+                    <div className="text-sm text-neutral-400">Resp.: {t.resp} {t.dep ? ` · ${t.dep}` : ""}</div>
                     <div className="mt-2 text-sm text-neutral-400">
-                      Inicio: {fmtDMY(new Date(t.start))} · Fin:{" "}
-                      {fmtDMY(new Date(t.end))}
+                      Inicio: {fmtDMY(new Date(t.start))} · Fin: {fmtDMY(new Date(t.end))}
                     </div>
                   </div>
 
-                  <span
-                    className="px-3 py-1 rounded-full text-sm"
-                    style={{ color: brand, border: `1px solid ${brand}` }}
-                  >
+                  <span className="px-3 py-1 rounded-full text-sm" style={{ color: brand, border: `1px solid ${brand}` }}>
                     Fecha objetivo: {fmtDMY(new Date(t.end))}
                   </span>
                 </div>
@@ -463,27 +603,18 @@ export default function App() {
                   ) : (
                     <label className="h-10 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700 cursor-pointer">
                       <Paperclip size={18} />
-                      <span className="truncate">
-                        {t.draftPdf?.name || "Adjuntar PDF"}
-                      </span>
+                      <span className="truncate">{t.draftPdf?.name || "Adjuntar PDF"}</span>
                       <input
                         type="file"
                         accept="application/pdf"
                         className="hidden"
-                        onChange={(e) =>
-                          pickPdfOne(i, e.target.files?.[0] || null)
-                        }
+                        onChange={(e) => pickPdfOne(i, e.target.files?.[0] || null)}
                       />
                     </label>
                   )}
 
                   {locked ? (
-                    <a
-                      className="underline truncate w-[420px]"
-                      href={t.driveLink}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
+                    <a className="underline truncate w-[420px]" href={t.driveLink} target="_blank" rel="noreferrer">
                       {t.driveLink}
                     </a>
                   ) : (
@@ -504,9 +635,7 @@ export default function App() {
                       onClick={() => submitOne(i)}
                       disabled={!hasDrafts}
                       className={`h-10 w-10 rounded-xl inline-flex items-center justify-center ${
-                        hasDrafts
-                          ? "text-white"
-                          : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        hasDrafts ? "text-white" : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                       }`}
                       style={{ background: hasDrafts ? brand : undefined }}
                       title={hasDrafts ? "Subir" : "Adjuntá PDF y Link"}
@@ -518,22 +647,13 @@ export default function App() {
 
                 {/* Mini-Gantt */}
                 <div className="mt-3">
-                  <div
-                    className="grid gap-1"
-                    style={{ gridTemplateColumns: "repeat(12, minmax(0,1fr))" }}
-                  >
+                  <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(12, minmax(0,1fr))" }}>
                     {Array.from({ length: 12 }).map((_, idx) => (
-                      <div
-                        key={idx}
-                        className="h-1.5 rounded-full bg-neutral-800 overflow-hidden"
-                      >
+                      <div key={idx} className="h-1.5 rounded-full bg-neutral-800 overflow-hidden">
                         <div
                           className="h-full"
                           style={{
-                            background:
-                              idx >= sIdx && idx <= eIdx
-                                ? brand
-                                : "transparent",
+                            background: idx >= sIdx && idx <= eIdx ? brand : "transparent",
                           }}
                         />
                       </div>
@@ -556,7 +676,7 @@ export default function App() {
           })}
         </section>
 
-        {/* Recurrentes: tabla alineada por columnas */}
+        {/* Recurrentes */}
         <section className="mt-10">
           <h3 className="text-xl font-semibold mb-3">Entregables recurrentes</h3>
 
@@ -566,43 +686,31 @@ export default function App() {
               const opened = !!open[key];
               const canSubmit = !!r.draftDrive && !!r.draftPdf;
               const last = r.history[0];
-              const lastPdfUrl = last ? dataUrlToObjectUrl(last.pdf.dataUrl) : null;
+              const lastPdfUrl = last ? toPdfHref(last.pdf.dataUrl) : null;
 
               return (
                 <div key={r.code} className="border-t border-neutral-800 bg-neutral-900/40">
-                  {/* FILA Grid fija: [toggle | desc | próxima | pdf | link | subir] */}
+                  {/* Fila fija: [toggle | desc | próxima | pdf | link | subir] */}
                   <div
                     className="px-4 py-3 grid items-center gap-3"
-                    style={{
-                      gridTemplateColumns:
-                        "40px 510px 100px 150px 310px 40px",
-                    }}
+                    style={{ gridTemplateColumns: "40px 510px 100px 150px 310px 40px" }}
                   >
-                    {/* toggle */}
                     <button
                       onClick={() => setOpen((s) => ({ ...s, [key]: !s[key] }))}
                       className="h-8 w-8 inline-flex items-center justify-center rounded-lg border border-neutral-700"
                       title="Ver detalles / historial"
                     >
-                      <ChevronDown
-                        size={16}
-                        className={`transition-transform ${
-                          opened ? "rotate-180" : ""
-                        }`}
-                      />
+                      <ChevronDown size={16} className={`transition-transform ${opened ? "rotate-180" : ""}`} />
                     </button>
 
-                    {/* Descripción: hasta 2 líneas, fija a 560px */}
                     <div className="font-medium leading-tight">
                       <span className="line-clamp-2 break-words">{r.name}</span>
                     </div>
 
-                    {/* Próxima (alineación vertical con todas) */}
                     <div className="text-sm text-neutral-200 px-2 py-1 rounded-full border border-neutral-700 text-center">
                       {fmtDMY(new Date(r.nextAt))}
                     </div>
 
-                    {/* PDF (fijo 220) */}
                     {last && !r.draftPdf ? (
                       <a
                         className="h-9 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700"
@@ -618,21 +726,16 @@ export default function App() {
                     ) : (
                       <label className="h-9 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700 cursor-pointer">
                         <Paperclip size={16} />
-                        <span className="truncate">
-                          {r.draftPdf?.name || "Adjuntar PDF"}
-                        </span>
+                        <span className="truncate">{r.draftPdf?.name || "Adjuntar PDF"}</span>
                         <input
                           type="file"
                           accept="application/pdf"
                           className="hidden"
-                          onChange={(e) =>
-                            pickPdfRecur(idx, e.target.files?.[0] || null)
-                          }
+                          onChange={(e) => pickPdfRecur(idx, e.target.files?.[0] || null)}
                         />
                       </label>
                     )}
 
-                    {/* Link (fijo 420) */}
                     {r.draftDrive ? (
                       <input
                         className="h-9 w-[310px] px-3 rounded-xl border bg-neutral-950 border-neutral-700 text-neutral-100 outline-none"
@@ -645,12 +748,7 @@ export default function App() {
                         }}
                       />
                     ) : last ? (
-                      <a
-                        className="underline truncate w-[310px]"
-                        href={last.driveLink}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
+                      <a className="underline truncate w-[310px]" href={last.driveLink} target="_blank" rel="noreferrer">
                         {last.driveLink}
                       </a>
                     ) : (
@@ -666,14 +764,11 @@ export default function App() {
                       />
                     )}
 
-                    {/* Subir (fijo 44) */}
                     <button
                       onClick={() => submitRecur(idx)}
                       disabled={!canSubmit}
                       className={`h-9 w-9 rounded-xl inline-flex items-center justify-center ${
-                        canSubmit
-                          ? "text-white"
-                          : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        canSubmit ? "text-white" : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                       }`}
                       style={{ background: canSubmit ? brand : undefined }}
                       title={canSubmit ? "Subir" : "Adjuntá PDF y Link"}
@@ -682,16 +777,11 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Panel desplegable: Detalles + Historial (ocupa ancho total) */}
                   {opened && (
                     <div className="px-4 pb-4">
-                      {/* Detalles */}
                       {r.details?.length ? (
                         <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-3 py-2 mb-3">
-                          <div
-                            className="text-sm font-semibold mb-1"
-                            style={{ color: brand }}
-                          >
+                          <div className="text-sm font-semibold mb-1" style={{ color: brand }}>
                             Detalles
                           </div>
                           <ul className="list-disc pl-5 text-sm space-y-1">
@@ -702,7 +792,6 @@ export default function App() {
                         </div>
                       ) : null}
 
-                      {/* Historial */}
                       <div className="rounded-xl border border-neutral-800 overflow-hidden">
                         <div className="grid grid-cols-[140px_160px_1fr_1fr] gap-2 bg-neutral-900/60 px-3 py-2 text-sm items-center">
                           <div className="text-center">Prometida</div>
@@ -712,42 +801,25 @@ export default function App() {
                         </div>
                         {r.history.length ? (
                           r.history.map((h, j) => {
-                            const href = dataUrlToObjectUrl(h.pdf.dataUrl);
+                            const href = toPdfHref(h.pdf.dataUrl);
                             return (
                               <div
                                 key={j}
                                 className="grid grid-cols-[140px_160px_1fr_1fr] gap-2 px-3 py-2 border-t border-neutral-800 items-center"
                               >
-                                <div className="text-center">
-                                  {fmtDMY(new Date(h.promisedAt))}
-                                </div>
-                                <div className="text-center">
-                                  {fmtDMY(new Date(h.uploadedAt))}
-                                </div>
-                                <a
-                                  className="underline truncate"
-                                  href={href}
-                                  download={h.pdf.name}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
+                                <div className="text-center">{fmtDMY(new Date(h.promisedAt))}</div>
+                                <div className="text-center">{fmtDMY(new Date(h.uploadedAt))}</div>
+                                <a className="underline truncate" href={href} download={h.pdf.name} target="_blank" rel="noreferrer">
                                   {h.pdf.name}
                                 </a>
-                                <a
-                                  className="underline truncate"
-                                  href={h.driveLink}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
+                                <a className="underline truncate" href={h.driveLink} target="_blank" rel="noreferrer">
                                   {h.driveLink}
                                 </a>
                               </div>
                             );
                           })
                         ) : (
-                          <div className="px-3 py-2 text-sm text-neutral-500">
-                            Sin registros
-                          </div>
+                          <div className="px-3 py-2 text-sm text-neutral-500">Sin registros</div>
                         )}
                       </div>
                     </div>
