@@ -199,9 +199,6 @@ export default function Diseno() {
               <li>
                 <b>Comunicación con planificación:</b> Cumplir la secuencia y prioridad asignadas por planificación.;Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
               </li>
-              <li>
-                <b>Optimización:</b> Agrupar planchas y colas digitales para reducir cambios de papel;
-              </li>
             </ul>
           </div>
           <div>
