@@ -6,7 +6,6 @@ import { supabase } from "./lib/supabase";
 const brand = "#086c7c";
 const PROJECT_START = new Date("2025-09-08T00:00:00"); // Lun 8/9/2025
 const WEEKS = 12;
-const BUCKET = "entregables";
 
 /* ===== Utilidades ===== */
 const pad2 = (n: number) => String(n).padStart(2, "0");
@@ -41,28 +40,28 @@ const fileToDataUrl = (f: File) =>
   });
 
 const dataUrlToObjectUrl = (du: string) => {
-  if (du.startsWith("http")) return du;
-  const bstr = atob(du.split(",")[1] || "");
-  const u8 = new Uint8Array(bstr.length);
-  for (let i = 0; i < bstr.length; i++) u8[i] = bstr.charCodeAt(i);
-  return URL.createObjectURL(new Blob([u8], { type: "application/pdf" }));
+  const base = du.split(",")[1] || "";
+  try {
+    const bstr = atob(base);
+    const u8 = new Uint8Array(bstr.length);
+    for (let i = 0; i < bstr.length; i++) u8[i] = bstr.charCodeAt(i);
+    return URL.createObjectURL(new Blob([u8], { type: "application/pdf" }));
+  } catch {
+    // already a URL
+    return du;
+  }
 };
-const toPdfHref = (s: string) => (s?.startsWith("data:") ? dataUrlToObjectUrl(s) : s);
 
-/* ===== Supabase storage helpers ===== */
-const safeKey = (s: string) =>
-  s
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "_");
+const toPdfHref = (s: string) =>
+  s?.startsWith("data:") || s?.startsWith("http") ? s : dataUrlToObjectUrl(s);
 
 const uploadPdfToStorage = async (file: File, key: string) => {
-  const { error } = await supabase.storage.from(BUCKET).upload(key, file, {
-    upsert: true,
-    contentType: "application/pdf",
-  });
+  const { error } = await supabase.storage
+    .from("entregables")
+    .upload(key, file, { upsert: true });
   if (error) throw error;
-  const { data } = supabase.storage.from(BUCKET).getPublicUrl(key);
+
+  const { data } = supabase.storage.from("entregables").getPublicUrl(key);
   return { publicUrl: data.publicUrl, path: key };
 };
 
@@ -109,68 +108,70 @@ type RecurItem = {
 };
 
 /* ===== Datos base ===== */
-const oneBase: Omit<OneShot, "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "uploadedAt" | "_draftPdfFile">[] =
-  [
-    {
-      code: "prod10",
-      name: "Elegir 10 productos (coord. Comercial)",
-      resp: "Planificación + Comercial",
-      start: addDays(PROJECT_START, 0).toISOString(),
-      end: addDays(PROJECT_START, 6).toISOString(),
-      details: [
-        "Coordinar con Comercial (5 existen, sumar 5).",
-        "Entregable: Listado de 10 productos priorizados.",
-      ],
-    },
-    {
-      code: "variantes",
-      name: "Establecer variantes / características",
-      resp: "Planificación",
-      dep: "Dep.: Elegir 10 productos",
-      start: addDays(PROJECT_START, 7).toISOString(),
-      end: addDays(PROJECT_START, 20).toISOString(),
-      details: ["Documento de variantes (similar clientes chicos)."],
-    },
-    {
-      code: "tiempos",
-      name: "Definir tiempos de entrega (estándar & express)",
-      resp: "Producción + Planificación + Comercial",
-      dep: "Dep.: Variantes/Características",
-      start: addDays(PROJECT_START, 21).toISOString(),
-      end: addDays(PROJECT_START, 34).toISOString(),
-      details: ["Excel para prometer fechas (estándar/express)."],
-    },
-    {
-      code: "rutas",
-      name: "Rutas productivas + planes B (10 prod x variantes)",
-      resp: "Producción (Mandos Medios)",
-      dep: "Dep.: Tiempos de entrega",
-      start: addDays(PROJECT_START, 35).toISOString(),
-      end: addDays(PROJECT_START, 56).toISOString(),
-      details: ["Diagramas de flujo por producto + plan B."],
-    },
-    {
-      code: "taller",
-      name: "Actividades de taller y tiempos por máquina",
-      resp: "Producción",
-      dep: "Dep.: Rutas productivas",
-      start: addDays(PROJECT_START, 57).toISOString(),
-      end: addDays(PROJECT_START, 76).toISOString(),
-      details: [
-        "Excel con tiempos inicio / por cantidad / cierre (actualizable).",
-      ],
-    },
-    // Paralela S2 (1 semana)
-    {
-      code: "tercerizados_listado",
-      name: "Listar actividades tercerizadas (con Pablo) + tiempos",
-      resp: "Producción + Pablo",
-      dep: "Corre en paralelo desde S2",
-      start: addDays(PROJECT_START, 7).toISOString(),
-      end: addDays(PROJECT_START, 13).toISOString(),
-      details: ["Excel con proveedor, actividad, SLA/tiempo de entrega."],
-    },
-  ];
+const oneBase: Omit<
+  OneShot,
+  "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "uploadedAt" | "_draftPdfFile"
+>[] = [
+  {
+    code: "prod10",
+    name: "Elegir 10 productos (coord. Comercial)",
+    resp: "Planificación + Comercial",
+    start: addDays(PROJECT_START, 0).toISOString(),
+    end: addDays(PROJECT_START, 6).toISOString(),
+    details: [
+      "Coordinar con Comercial (5 existen, sumar 5).",
+      "Entregable: Listado de 10 productos priorizados.",
+    ],
+  },
+  {
+    code: "variantes",
+    name: "Establecer variantes / características",
+    resp: "Planificación",
+    dep: "Dep.: Elegir 10 productos",
+    start: addDays(PROJECT_START, 7).toISOString(),
+    end: addDays(PROJECT_START, 20).toISOString(),
+    details: ["Documento de variantes (similar clientes chicos)."],
+  },
+  {
+    code: "tiempos",
+    name: "Definir tiempos de entrega (estándar & express)",
+    resp: "Producción + Planificación + Comercial",
+    dep: "Dep.: Variantes/Características",
+    start: addDays(PROJECT_START, 21).toISOString(),
+    end: addDays(PROJECT_START, 34).toISOString(),
+    details: ["Excel para prometer fechas (estándar/express)."],
+  },
+  {
+    code: "rutas",
+    name: "Rutas productivas + planes B (10 prod x variantes)",
+    resp: "Producción (Mandos Medios)",
+    dep: "Dep.: Tiempos de entrega",
+    start: addDays(PROJECT_START, 35).toISOString(),
+    end: addDays(PROJECT_START, 56).toISOString(),
+    details: ["Diagramas de flujo por producto + plan B."],
+  },
+  {
+    code: "taller",
+    name: "Actividades de taller y tiempos por máquina",
+    resp: "Producción",
+    dep: "Dep.: Rutas productivas",
+    start: addDays(PROJECT_START, 57).toISOString(),
+    end: addDays(PROJECT_START, 76).toISOString(),
+    details: [
+      "Excel con tiempos inicio / por cantidad / cierre (actualizable).",
+    ],
+  },
+  // Paralela desde S2 (1 semana)
+  {
+    code: "tercerizados_listado",
+    name: "Listar actividades tercerizadas (con Pablo) + tiempos",
+    resp: "Producción + Pablo",
+    dep: "Corre en paralelo desde S2",
+    start: addDays(PROJECT_START, 7).toISOString(),
+    end: addDays(PROJECT_START, 13).toISOString(),
+    details: ["Excel con proveedor, actividad, SLA/tiempo de entrega."],
+  },
+];
 
 const recurBase: RecurItem[] = [
   {
@@ -293,13 +294,14 @@ export default function App() {
   const [recs, setRecs] = React.useState<RecurItem[]>(initial.recs);
   const [open, setOpen] = React.useState<Record<string | number, boolean>>({});
 
-  // Carga/seed desde Supabase
+  // Cargar desde Supabase
   React.useEffect(() => {
     (async () => {
       try {
-        // ONES
+        // ---- ONES ----
         const { data: onesRows, error: onesErr } = await supabase.from("ones").select("*");
         if (onesErr) throw onesErr;
+
         if (onesRows?.length) {
           const merged = oneBase.map((base) => {
             const row = onesRows.find((r: any) => r.code === base.code);
@@ -307,10 +309,7 @@ export default function App() {
               ...base,
               driveLink: row?.drive_link ?? undefined,
               pdf: row?.pdf_path
-                ? {
-                    name: (row.pdf_path as string).split("/").pop() || "archivo.pdf",
-                    dataUrl: row.pdf_path,
-                  }
+                ? { name: (row.pdf_path as string).split("/").pop() || "archivo.pdf", dataUrl: row.pdf_path }
                 : undefined,
               uploadedAt: row?.uploaded_at ?? undefined,
               draftDrive: "",
@@ -320,6 +319,7 @@ export default function App() {
           });
           setOnes(merged);
         } else {
+          // Seed inicial si está vacío
           await supabase.from("ones").upsert(
             oneBase.map((o) => ({
               code: o.code,
@@ -333,7 +333,7 @@ export default function App() {
           );
         }
 
-        // RECS
+        // ---- RECS + HISTORIAL ----
         const { data: recRows, error: recErr } = await supabase.from("recs").select("*");
         if (recErr) throw recErr;
 
@@ -366,6 +366,7 @@ export default function App() {
           });
           setRecs(mergedRecs);
         } else {
+          // Seed inicial si está vacío (incluye freq_days para evitar NOT NULL)
           await supabase.from("recs").upsert(
             recurBase.map((r) => ({
               code: r.code,
@@ -401,11 +402,13 @@ export default function App() {
     const t = ones[i];
     if (!t._draftPdfFile || !t.draftDrive) return;
 
+    // 1) Subir a Storage
+    const key = `ones/${t.code}/${Date.now()}_${t._draftPdfFile.name}`;
     try {
-      const key = `ones/${t.code}/${Date.now()}_${safeKey(t._draftPdfFile.name)}`;
       const up = await uploadPdfToStorage(t._draftPdfFile, key);
       const now = new Date().toISOString();
 
+      // 2) Guardar en DB
       const { error } = await supabase.from("ones").upsert({
         code: t.code,
         drive_link: t.draftDrive,
@@ -414,6 +417,7 @@ export default function App() {
       });
       if (error) throw error;
 
+      // 3) Reflejar en UI (se bloquea el one-shot)
       const copy = [...ones];
       copy[i] = {
         ...t,
@@ -425,9 +429,9 @@ export default function App() {
         _draftPdfFile: null,
       };
       setOnes(copy);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Error al subir el PDF");
+      alert("Error subiendo el PDF o guardando en la base.");
     }
   };
 
@@ -449,12 +453,13 @@ export default function App() {
     const r = recs[i];
     if (!r._draftPdfFile || !r.draftDrive) return;
 
+    // 1) Subir a Storage
+    const key = `recs/${r.code}/${Date.now()}_${r._draftPdfFile.name}`;
     try {
-      const key = `recs/${r.code}/${Date.now()}_${safeKey(r._draftPdfFile.name)}`;
       const up = await uploadPdfToStorage(r._draftPdfFile, key);
       const now = new Date().toISOString();
 
-      // Insertar historial
+      // 2) Insertar historial
       const { error: histErr } = await supabase.from("rec_history").insert({
         rec_code: r.code,
         promised_at: r.nextAt,
@@ -464,17 +469,16 @@ export default function App() {
       });
       if (histErr) throw histErr;
 
-      // Avanzar próxima fecha y asegurar freq_days
+      // 3) Avanzar próxima fecha (y asegurar freq_days en DB la primera vez)
       const next = addDays(new Date(r.nextAt), r.freqDays).toISOString();
       const { error: recErr } = await supabase.from("recs").upsert({
         code: r.code,
-        name: r.name,
-        freq_days: r.freqDays,
         next_at: next,
+        freq_days: r.freqDays, // importante para evitar NOT NULL
       });
       if (recErr) throw recErr;
 
-      // Reflejar en UI y RESETEAR inputs
+      // 4) Reflejar en UI (resetear para próximo ciclo)
       const copy = [...recs];
       copy[i].history = [
         {
@@ -490,9 +494,9 @@ export default function App() {
       copy[i].draftPdf = null;
       copy[i]._draftPdfFile = null;
       setRecs(copy);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Error al subir el PDF recurrente");
+      alert("Error subiendo el PDF o guardando en la base.");
     }
   };
 
@@ -557,6 +561,7 @@ export default function App() {
               <a
                 target="_blank"
                 href="https://docs.google.com/document/d/1YriXyG9mRkxBuSuMWO1uXPZiAC8V8lTOz0_L-5YOaKc/edit?usp=sharing "
+                rel="noreferrer"
               >
                 Más detalles click acá
               </a>
@@ -607,7 +612,9 @@ export default function App() {
                   >
                     <ChevronDown
                       size={18}
-                      className={`transition-transform ${open[i] ? "rotate-180" : ""}`}
+                      className={`transition-transform ${
+                        open[i] ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
 
@@ -617,7 +624,8 @@ export default function App() {
                       Resp.: {t.resp} {t.dep ? ` · ${t.dep}` : ""}
                     </div>
                     <div className="mt-2 text-sm text-neutral-400">
-                      Inicio: {fmtDMY(new Date(t.start))} · Fin: {fmtDMY(new Date(t.end))}
+                      Inicio: {fmtDMY(new Date(t.start))} · Fin:{" "}
+                      {fmtDMY(new Date(t.end))}
                     </div>
                   </div>
 
@@ -645,7 +653,9 @@ export default function App() {
                   ) : (
                     <label className="h-10 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700 cursor-pointer">
                       <Paperclip size={18} />
-                      <span className="truncate">{t.draftPdf?.name || "Adjuntar PDF"}</span>
+                      <span className="truncate">
+                        {t.draftPdf?.name || "Adjuntar PDF"}
+                      </span>
                       <input
                         type="file"
                         accept="application/pdf"
@@ -656,7 +666,12 @@ export default function App() {
                   )}
 
                   {locked ? (
-                    <a className="underline truncate w-[420px]" href={t.driveLink} target="_blank" rel="noreferrer">
+                    <a
+                      className="underline truncate w-[420px]"
+                      href={t.driveLink}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       {t.driveLink}
                     </a>
                   ) : (
@@ -677,7 +692,9 @@ export default function App() {
                       onClick={() => submitOne(i)}
                       disabled={!hasDrafts}
                       className={`h-10 w-10 rounded-xl inline-flex items-center justify-center ${
-                        hasDrafts ? "text-white" : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        hasDrafts
+                          ? "text-white"
+                          : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                       }`}
                       style={{ background: hasDrafts ? brand : undefined }}
                       title={hasDrafts ? "Subir" : "Adjuntá PDF y Link"}
@@ -689,13 +706,20 @@ export default function App() {
 
                 {/* Mini-Gantt */}
                 <div className="mt-3">
-                  <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(12, minmax(0,1fr))" }}>
+                  <div
+                    className="grid gap-1"
+                    style={{ gridTemplateColumns: "repeat(12, minmax(0,1fr))" }}
+                  >
                     {Array.from({ length: 12 }).map((_, idx) => (
-                      <div key={idx} className="h-1.5 rounded-full bg-neutral-800 overflow-hidden">
+                      <div
+                        key={idx}
+                        className="h-1.5 rounded-full bg-neutral-800 overflow-hidden"
+                      >
                         <div
                           className="h-full"
                           style={{
-                            background: idx >= sIdx && idx <= eIdx ? brand : "transparent",
+                            background:
+                              idx >= sIdx && idx <= eIdx ? brand : "transparent",
                           }}
                         />
                       </div>
@@ -718,7 +742,7 @@ export default function App() {
           })}
         </section>
 
-        {/* Recurrentes */}
+        {/* Recurrentes: tabla alineada por columnas */}
         <section className="mt-10">
           <h3 className="text-xl font-semibold mb-3">Entregables recurrentes</h3>
 
@@ -728,11 +752,11 @@ export default function App() {
               const opened = !!open[key];
               const canSubmit = !!r._draftPdfFile && !!r.draftDrive;
               const last = r.history[0];
-              const lastPdfUrl = last ? toPdfHref(last.pdf.dataUrl) : null;
+              // En la fila SIEMPRE dejamos controles de nueva carga (no mostramos descarga aquí)
 
               return (
                 <div key={r.code} className="border-t border-neutral-800 bg-neutral-900/40">
-                  {/* FILA Grid fija */}
+                  {/* FILA Grid fija: [toggle | desc | próxima | pdf | link | subir] */}
                   <div
                     className="px-4 py-3 grid items-center gap-3"
                     style={{
@@ -747,7 +771,9 @@ export default function App() {
                     >
                       <ChevronDown
                         size={16}
-                        className={`transition-transform ${opened ? "rotate-180" : ""}`}
+                        className={`transition-transform ${
+                          opened ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
 
@@ -761,56 +787,40 @@ export default function App() {
                       {fmtDMY(new Date(r.nextAt))}
                     </div>
 
-                    {/* PDF */}
-                    {last && !r._draftPdfFile ? (
-                      <a
-                        className="h-9 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700"
-                        href={lastPdfUrl!}
-                        download={last.pdf.name}
-                        target="_blank"
-                        rel="noreferrer"
-                        title="Descargar último PDF"
-                      >
-                        <Download size={16} />
-                        <span className="truncate">{last.pdf.name}</span>
-                      </a>
-                    ) : (
-                      <label className="h-9 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700 cursor-pointer">
-                        <Paperclip size={16} />
-                        <span className="truncate">{r.draftPdf?.name || "Adjuntar PDF"}</span>
-                        <input
-                          type="file"
-                          accept="application/pdf"
-                          className="hidden"
-                          onChange={(e) => pickPdfRecur(idx, e.target.files?.[0] || null)}
-                        />
-                      </label>
-                    )}
-
-                    {/* Link */}
-                    {r._draftPdfFile || !last ? (
+                    {/* PDF -> SIEMPRE adjuntar (no se bloquea) */}
+                    <label className="h-9 w-[150px] px-3 inline-flex items-center gap-2 rounded-xl border border-neutral-700 cursor-pointer">
+                      <Paperclip size={16} />
+                      <span className="truncate">
+                        {r.draftPdf?.name || "Adjuntar PDF"}
+                      </span>
                       <input
-                        className="h-9 w-[310px] px-3 rounded-xl border bg-neutral-950 border-neutral-700 text-neutral-100 outline-none"
-                        placeholder="https://drive.google.com/..."
-                        value={r.draftDrive || ""}
-                        onChange={(e) => {
-                          const copy = [...recs];
-                          copy[idx].draftDrive = e.target.value;
-                          setRecs(copy);
-                        }}
+                        type="file"
+                        accept="application/pdf"
+                        className="hidden"
+                        onChange={(e) => pickPdfRecur(idx, e.target.files?.[0] || null)}
                       />
-                    ) : (
-                      <a className="underline truncate w-[310px]" href={last.driveLink} target="_blank" rel="noreferrer">
-                        {last.driveLink}
-                      </a>
-                    )}
+                    </label>
+
+                    {/* Link -> SIEMPRE input editable */}
+                    <input
+                      className="h-9 w-[310px] px-3 rounded-xl border bg-neutral-950 border-neutral-700 text-neutral-100 outline-none"
+                      placeholder={last ? last.driveLink : "https://drive.google.com/..."}
+                      value={r.draftDrive || ""}
+                      onChange={(e) => {
+                        const copy = [...recs];
+                        copy[idx].draftDrive = e.target.value;
+                        setRecs(copy);
+                      }}
+                    />
 
                     {/* Subir */}
                     <button
                       onClick={() => submitRecur(idx)}
                       disabled={!canSubmit}
                       className={`h-9 w-9 rounded-xl inline-flex items-center justify-center ${
-                        canSubmit ? "text-white" : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
+                        canSubmit
+                          ? "text-white"
+                          : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                       }`}
                       style={{ background: canSubmit ? brand : undefined }}
                       title={canSubmit ? "Subir" : "Adjuntá PDF y Link"}
@@ -819,12 +829,16 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Panel: Detalles + Historial */}
+                  {/* Panel desplegable: Detalles + Historial */}
                   {opened && (
                     <div className="px-4 pb-4">
+                      {/* Detalles */}
                       {r.details?.length ? (
                         <div className="rounded-xl border border-neutral-800 bg-neutral-900/60 px-3 py-2 mb-3">
-                          <div className="text-sm font-semibold mb-1" style={{ color: brand }}>
+                          <div
+                            className="text-sm font-semibold mb-1"
+                            style={{ color: brand }}
+                          >
                             Detalles
                           </div>
                           <ul className="list-disc pl-5 text-sm space-y-1">
@@ -851,19 +865,36 @@ export default function App() {
                                 key={j}
                                 className="grid grid-cols-[140px_160px_1fr_1fr] gap-2 px-3 py-2 border-t border-neutral-800 items-center"
                               >
-                                <div className="text-center">{fmtDMY(new Date(h.promisedAt))}</div>
-                                <div className="text-center">{fmtDMY(new Date(h.uploadedAt))}</div>
-                                <a className="underline truncate" href={href} download={h.pdf.name} target="_blank" rel="noreferrer">
+                                <div className="text-center">
+                                  {fmtDMY(new Date(h.promisedAt))}
+                                </div>
+                                <div className="text-center">
+                                  {fmtDMY(new Date(h.uploadedAt))}
+                                </div>
+                                <a
+                                  className="underline truncate"
+                                  href={href}
+                                  download={h.pdf.name}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
                                   {h.pdf.name}
                                 </a>
-                                <a className="underline truncate" href={h.driveLink} target="_blank" rel="noreferrer">
+                                <a
+                                  className="underline truncate"
+                                  href={h.driveLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
                                   {h.driveLink}
                                 </a>
                               </div>
                             );
                           })
                         ) : (
-                          <div className="px-3 py-2 text-sm text-neutral-500">Sin registros</div>
+                          <div className="px-3 py-2 text-sm text-neutral-500">
+                            Sin registros
+                          </div>
                         )}
                       </div>
                     </div>
