@@ -136,7 +136,7 @@ const oneBase: Omit<OneShot, "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "
   },
 ];
 
-const recurBase: Omit<RecurItem, "history" | "draftDrive" | "draftPdf">[] = [
+const recurBase: RecurItem[] = [
   {
     code: "otd",
     name: "Gráfica de cumplimiento de fecha de entrega (Semanal)",
