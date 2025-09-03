@@ -11,9 +11,7 @@ const WEEKS = 12;
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const fmtDM = (d: Date) => `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}`;
 const fmtDMY = (d: Date) =>
-  `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(
-    d.getFullYear()
-  ).slice(-2)}`;
+  `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${String(d.getFullYear()).slice(-2)}`;
 const addDays = (d: Date, days: number) => new Date(d.getTime() + days * 86400000);
 const weekIndex = (d: Date) =>
   Math.max(0, Math.min(11, Math.floor((d.getTime() - PROJECT_START.getTime()) / (7 * 86400000))));
@@ -42,35 +40,29 @@ const dataUrlToObjectUrl = (du: string) => {
   return URL.createObjectURL(new Blob([u8], { type: "application/pdf" }));
 };
 
-// Si es data:URL -> Blob URL; si es URL pública (Supabase), se usa tal cual.
+// data:URL -> Blob URL; si es URL pública (Supabase), se usa tal cual.
 const toPdfHref = (s: string) => (s?.startsWith("data:") ? dataUrlToObjectUrl(s) : s);
 
-// --- Helpers para subir PDF a Supabase (reemplaza al viejo uploadPdfToStorage) ---
-const slug = (s: string) =>
-  s.toLowerCase().normalize("NFD")                 // separa letras y acentos
-    .replace(/[\u0300-\u036f]/g, "")  // quita acentos
-    .replace(/[^a-zA-Z0-9._-]+/g, "-")// deja letras/números, punto, guion y guion bajo
-    .replace(/-+/g, "-")              // colapsa múltiples guiones
+// Sanea nombres de archivos (acentos, espacios, paréntesis, etc.)
+const slugFileName = (name: string) =>
+  name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/-+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-async function uploadPdfToStorage(file: File, keyPrefix: string) {
-  // keyPrefix: 'ones/<codigo>' o 'recs/<codigo>'
-  const key = `${keyPrefix}/${Date.now()}_${slug(file.name)}`;
-
-  const { error } = await supabase
-    .storage
-    .from("entregables")
-    .upload(key, file, {
-      upsert: true,
-      contentType: "application/pdf",
-      cacheControl: "3600",
-    });
-
+// Subida a Supabase Storage y devuelve URL pública
+const uploadPdfToStorage = async (file: File, key: string) => {
+  const { error } = await supabase.storage.from("entregables").upload(key, file, {
+    upsert: true,
+    contentType: "application/pdf",
+    cacheControl: "3600",
+  });
   if (error) throw error;
-
   const { data } = supabase.storage.from("entregables").getPublicUrl(key);
   return { publicUrl: data.publicUrl, path: key };
-}
+};
 
 /* ===== Tipos ===== */
 type OneShot = {
@@ -86,7 +78,7 @@ type OneShot = {
   uploadedAt?: string;
   draftDrive?: string;
   draftPdf?: PDFRef | null;
-  _draftPdfFile?: File | null; // <-- agregado (una sola vez)
+  _draftPdfFile?: File | null; // <-- solo una vez
 };
 
 type RecurItem = {
@@ -104,7 +96,7 @@ type RecurItem = {
   nextAt: string;
   draftDrive?: string;
   draftPdf?: PDFRef | null;
-  _draftPdfFile?: File | null; // <-- agregado
+  _draftPdfFile?: File | null;
   history: { promisedAt: string; uploadedAt: string; driveLink: string; pdf: PDFRef }[];
   details?: string[];
 };
@@ -120,10 +112,7 @@ const oneBase: Omit<
     resp: "Planificación + Comercial",
     start: addDays(PROJECT_START, 0).toISOString(),
     end: addDays(PROJECT_START, 6).toISOString(),
-    details: [
-      "Coordinar con Comercial (5 existen, sumar 5).",
-      "Entregable: Listado de 10 productos priorizados.",
-    ],
+    details: ["Coordinar con Comercial (5 existen, sumar 5).", "Entregable: Listado de 10 productos priorizados."],
   },
   {
     code: "variantes",
@@ -200,9 +189,7 @@ const recurBase: RecurItem[] = [
     freqDays: 15,
     nextAt: addDays(PROJECT_START, 15).toISOString(),
     history: [],
-    details: [
-      "Se debe subir un documento con los cambios realizados al excel original de los tiempos de producción estimados.",
-    ],
+    details: ["Se debe subir un documento con los cambios realizados al excel original de los tiempos de producción estimados."],
   },
   {
     code: "third30",
@@ -221,9 +208,7 @@ const recurBase: RecurItem[] = [
     freqDays: 1,
     nextAt: PROJECT_START.toISOString(),
     history: [],
-    details: [
-      "Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión.",
-    ],
+    details: ["Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión."],
   },
   {
     code: "min_mma_mon",
@@ -231,9 +216,7 @@ const recurBase: RecurItem[] = [
     freqDays: 7,
     nextAt: nextWeekday(PROJECT_START, 1).toISOString(),
     history: [],
-    details: [
-      "Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión.",
-    ],
+    details: ["Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión."],
   },
   {
     code: "min_mma_thu",
@@ -241,9 +224,7 @@ const recurBase: RecurItem[] = [
     freqDays: 7,
     nextAt: nextWeekday(PROJECT_START, 4).toISOString(),
     history: [],
-    details: [
-      "Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión.",
-    ],
+    details: ["Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión."],
   },
   {
     code: "min_prod",
@@ -251,9 +232,7 @@ const recurBase: RecurItem[] = [
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
     history: [],
-    details: [
-      "Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión.",
-    ],
+    details: ["Minuta de reunión con fecha, asistentes y temas hablados + agenda de próxima reunión."],
   },
 ];
 
@@ -345,10 +324,11 @@ export default function App() {
             const row = recRows.find((r: any) => r.code === base.code);
             const hist = (histRows || []).filter((h: any) => h.rec_code === base.code);
             return {
-              ...base,
+              ...base, // mantiene freqDays de base
               nextAt: row?.next_at ?? base.nextAt,
               draftDrive: "",
               draftPdf: null,
+              _draftPdfFile: null,
               history: hist.map((h: any) => ({
                 promisedAt: h.promised_at,
                 uploadedAt: h.uploaded_at,
@@ -362,13 +342,15 @@ export default function App() {
           });
           setRecs(mergedRecs);
         } else {
+          // Seed inicial con freq_days
           await supabase.from("recs").upsert(
             recurBase.map((r) => ({
               code: r.code,
               name: r.name,
-              freq_days: r.freqDays,
+              freq_days: r.freqDays, // CLAVE
               next_at: r.nextAt,
-            }))
+            })),
+            { onConflict: "code" }
           );
         }
       } catch (e) {
@@ -380,140 +362,128 @@ export default function App() {
   // Guardar snapshot en localStorage (fallback)
   React.useEffect(() => saveState({ ones, recs }), [ones, recs]);
 
-// Helper local para nombre seguro en Storage
-const safeName = (s: string) => s.replace(/[^\w.\-]+/g, "-");
-
-/* -------- One-shot -------- */
-const pickPdfOne = async (i: number, f: File | null) => {
-  if (!f || f.type !== "application/pdf") return;
-  if (f.size > 12 * 1024 * 1024) {
-    alert("PDF muy grande (>12MB).");
-    return;
-  }
-  const du = await fileToDataUrl(f);
-  const copy = [...ones];
-  copy[i].draftPdf = { name: f.name, dataUrl: du };
-  copy[i]._draftPdfFile = f; // necesario para subir a Storage
-  setOnes(copy);
-};
-
-const submitOne = async (i: number) => {
-  const t = ones[i];
-  if (!t._draftPdfFile || !t.draftDrive) return;
-
-  try {
-    // 1) Subir PDF a Storage (ruta completa dentro del bucket)
-    const fileName = slugFileName(t._draftPdfFile.name);
-    const key = `ones/${t.code}/${Date.now()}_${fileName}`;
-    const up = await uploadPdfToStorage(t._draftPdfFile, key);
-    const now = new Date().toISOString();
-
-    // 2) Guardar/actualizar en tabla "ones"
-    const { error } = await supabase.from("ones").upsert({
-      code: t.code,
-      drive_link: t.draftDrive,
-      pdf_path: up.publicUrl, // guardamos la URL pública
-      uploaded_at: now,
-    });
-    if (error) throw error;
-
-    // 3) Reflejar en UI
-    const copy = [...ones];
-    copy[i] = {
-      ...t,
-      pdf: { name: t._draftPdfFile.name, dataUrl: up.publicUrl },
-      driveLink: t.draftDrive,
-      uploadedAt: now,
-      draftPdf: null,
-      draftDrive: "",
-      _draftPdfFile: null,
-    };
-    setOnes(copy);
-  } catch (err) {
-    console.error(err);
-    alert("No pude subir/guardar el PDF. Revisá la consola.");
-  }
-};
-
-/* -------- Recurrentes -------- */
-const pickPdfRecur = async (i: number, f: File | null) => {
-  if (!f || f.type !== "application/pdf") return;
-  if (f.size > 12 * 1024 * 1024) {
-    alert("PDF muy grande (>12MB).");
-    return;
-  }
-  const du = await fileToDataUrl(f);
-  const copy = [...recs];
-  copy[i].draftPdf = { name: f.name, dataUrl: du };
-  copy[i]._draftPdfFile = f; // guardo el File real para subir
-  setRecs(copy);
-};
-
-const submitRecur = async (i: number) => {
-  const r = recs[i];
-  if (!r._draftPdfFile || !r.draftDrive) return;
-
-  try {
-    // 1) Subir PDF a Storage
-    const fileName = slugFileName(r._draftPdfFile.name);
-    const key = `recs/${r.code}/${Date.now()}_${fileName}`;
-    const up = await uploadPdfToStorage(r._draftPdfFile, key);
-    const now = new Date().toISOString();
-
-    // 2) Insertar historial
-    const { error: histErr } = await supabase.from("rec_history").insert({
-      rec_code: r.code,
-      promised_at: r.nextAt,
-      uploaded_at: now,
-      drive_link: r.draftDrive,
-      pdf_path: up.publicUrl, // URL pública del PDF
-    });
-    if (histErr) throw histErr;
-
-    // 3) Avanzar próxima fecha en "recs"
-    // 2) Avanzar próxima fecha (usar upsert incluyendo freq_days)
-    const next = addDays(new Date(r.nextAt), r.freqDays).toISOString();
-
-    const { error: recErr } = await supabase
-      .from("recs")
-      .upsert(
-        {
-          code: r.code,
-          next_at: next,
-          freq_days: r.freqDays,   // <— CLAVE: mandarlo para no violar NOT NULL
-          name: r.name             // opcional, pero ayuda si la fila no existía
-        },
-        { onConflict: "code" }     // asegura que choque por PK y haga UPDATE
-      );
-
-    if (recErr) {
-      alert("Error al actualizar próxima fecha");
-      console.error(recErr);
+  /* -------- One-shot -------- */
+  const pickPdfOne = async (i: number, f: File | null) => {
+    if (!f || f.type !== "application/pdf") return;
+    if (f.size > 12 * 1024 * 1024) {
+      alert("PDF muy grande (>12MB).");
       return;
     }
+    const du = await fileToDataUrl(f); // solo para mostrar nombre
+    const copy = [...ones];
+    copy[i].draftPdf = { name: f.name, dataUrl: du };
+    copy[i]._draftPdfFile = f; // guardo el File real para subir
+    setOnes(copy);
+  };
 
+  const submitOne = async (i: number) => {
+    const t = ones[i];
+    if (!t._draftPdfFile || !t.draftDrive) return;
 
-    // 4) Reflejar en UI
-    const copy = [...recs];
-    copy[i].history = [
-      {
-        promisedAt: r.nextAt,
+    try {
+      const safe = slugFileName(t._draftPdfFile.name);
+      const key = `ones/${t.code}/${Date.now()}_${safe}`;
+      const up = await uploadPdfToStorage(t._draftPdfFile, key);
+      const now = new Date().toISOString();
+
+      const { error } = await supabase.from("ones").upsert({
+        code: t.code,
+        drive_link: t.draftDrive,
+        pdf_path: up.publicUrl,
+        uploaded_at: now,
+      });
+      if (error) throw error;
+
+      const copy = [...ones];
+      copy[i] = {
+        ...t,
+        pdf: { name: t._draftPdfFile.name, dataUrl: up.publicUrl },
+        driveLink: t.draftDrive,
         uploadedAt: now,
-        driveLink: r.draftDrive,
-        pdf: { name: r._draftPdfFile.name, dataUrl: up.publicUrl },
-      },
-      ...copy[i].history,
-    ];
-    copy[i].nextAt = next;
-    copy[i].draftDrive = "";
-    copy[i].draftPdf = null;
-    copy[i]._draftPdfFile = null;
+        draftPdf: null,
+        draftDrive: "",
+        _draftPdfFile: null,
+      };
+      setOnes(copy);
+    } catch (err) {
+      console.error(err);
+      alert("No pude subir/guardar el PDF. Revisá la consola.");
+    }
+  };
+
+  /* -------- Recurrentes -------- */
+  const pickPdfRecur = async (i: number, f: File | null) => {
+    if (!f || f.type !== "application/pdf") return;
+    if (f.size > 12 * 1024 * 1024) {
+      alert("PDF muy grande (>12MB).");
+      return;
+    }
+    const du = await fileToDataUrl(f);
+    const copy = [...recs];
+    copy[i].draftPdf = { name: f.name, dataUrl: du };
+    copy[i]._draftPdfFile = f; // guardo el File real para subir
     setRecs(copy);
-  } catch (err) {
-    console.error(err);
-    alert("No pude subir/guardar el PDF recurrente. Revisá la consola.");
-  }
-};
+  };
+
+  const submitRecur = async (i: number) => {
+    const r = recs[i];
+    if (!r._draftPdfFile || !r.draftDrive) return;
+
+    try {
+      // 1) Subir a Storage
+      const safe = slugFileName(r._draftPdfFile.name);
+      const key = `recs/${r.code}/${Date.now()}_${safe}`;
+      const up = await uploadPdfToStorage(r._draftPdfFile, key);
+      const now = new Date().toISOString();
+
+      // 2) Insertar historial
+      const { error: histErr } = await supabase.from("rec_history").insert({
+        rec_code: r.code,
+        promised_at: r.nextAt,
+        uploaded_at: now,
+        drive_link: r.draftDrive,
+        pdf_path: up.publicUrl,
+      });
+      if (histErr) throw histErr;
+
+      // 3) Próxima fecha
+      const next = addDays(new Date(r.nextAt), r.freqDays).toISOString();
+
+      // 4) Upsert rec (SIEMPRE con freq_days)
+      const { error: recErr } = await supabase
+        .from("recs")
+        .upsert(
+          {
+            code: r.code,
+            name: r.name,
+            next_at: next,
+            freq_days: r.freqDays, // CLAVE: evita NOT NULL
+          },
+          { onConflict: "code" }
+        );
+      if (recErr) throw recErr;
+
+      // 5) Reflejar en UI
+      const copy = [...recs];
+      copy[i].history = [
+        {
+          promisedAt: r.nextAt,
+          uploadedAt: now,
+          driveLink: r.draftDrive,
+          pdf: { name: r._draftPdfFile.name, dataUrl: up.publicUrl },
+        },
+        ...copy[i].history,
+      ];
+      copy[i].nextAt = next;
+      copy[i].draftDrive = "";
+      copy[i].draftPdf = null;
+      copy[i]._draftPdfFile = null;
+      setRecs(copy);
+    } catch (err) {
+      console.error(err);
+      alert("No pude subir/guardar el PDF recurrente. Revisá la consola.");
+    }
+  };
 
   /* ===== UI ===== */
   return (
@@ -613,7 +583,9 @@ const submitRecur = async (i: number) => {
 
                   <div className="flex-1 min-w-0">
                     <h4 className="text-lg font-semibold">{t.name}</h4>
-                    <div className="text-sm text-neutral-400">Resp.: {t.resp} {t.dep ? ` · ${t.dep}` : ""}</div>
+                    <div className="text-sm text-neutral-400">
+                      Resp.: {t.resp} {t.dep ? ` · ${t.dep}` : ""}
+                    </div>
                     <div className="mt-2 text-sm text-neutral-400">
                       Inicio: {fmtDMY(new Date(t.start))} · Fin: {fmtDMY(new Date(t.end))}
                     </div>
@@ -724,7 +696,6 @@ const submitRecur = async (i: number) => {
               const canSubmit = !!r.draftDrive && !!r.draftPdf;
               const last = r.history[0];
               const lastPdfUrl = last ? toPdfHref(last.pdf.dataUrl) : null;
-
               return (
                 <div key={r.code} className="border-t border-neutral-800 bg-neutral-900/40">
                   {/* Fila fija: [toggle | desc | próxima | pdf | link | subir] */}
