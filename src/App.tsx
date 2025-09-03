@@ -2,6 +2,9 @@ import React from "react";
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import { Calendar, PenTool, Wrench, ShoppingCart, ArrowRight } from "lucide-react";
 import Planificacion from "./pages/Planificacion";
+import Diseno from "./pages/Diseno";
+import Taller from "./pages/Taller";
+import Ventas from "./pages/Ventas";
 
 const brand = "#086c7c";
 
@@ -62,67 +65,25 @@ function Card({
 
 function Home() {
   return (
-    <Shell>
-      <main className="mx-auto max-w-[1400px] px-4 pb-20">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card
-            to="/planificacion"
-            title="Planificación de la producción"
-            icon={<Calendar size={20} />}
-            desc="Cronograma, entregables puntuales y recurrentes."
-          />
-          <Card
-            to="/diseno"
-            title="Diseño"
-            icon={<PenTool size={20} />}
-            desc="Briefs, aprobaciones y tiempos de diseño."
-          />
-          <Card
-            to="/taller"
-            title="Taller"
-            icon={<Wrench size={20} />}
-            desc="Capacidades, rutas y seguimiento de ejecución."
-          />
-          <Card
-            to="/ventas"
-            title="Ventas"
-            icon={<ShoppingCart size={20} />}
-            desc="Pedidos, confirmaciones y coordinación con producción."
-          />
-        </div>
-      </main>
-    </Shell>
-  );
-}
-
-function Placeholder({ title }: { title: string }) {
-  return (
-    <Shell>
-      <main className="mx-auto max-w-[1400px] px-4 pb-20">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6">
-          <h2 className="text-xl font-semibold mb-2">{title}</h2>
-          <p className="text-neutral-300">En construcción. Vamos a crear esta sección a continuación.</p>
-        </div>
-      </main>
-    </Shell>
+    <main className="mx-auto max-w-[1400px] px-4 pb-20">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card to="/planificacion" title="Planificación de la producción" icon={<Calendar size={20} />} desc="Cronograma, entregables puntuales y recurrentes." />
+        <Card to="/diseno" title="Diseño" icon={<PenTool size={20} />} desc="Briefs, aprobaciones y tiempos de diseño." />
+        <Card to="/taller" title="Taller" icon={<Wrench size={20} />} desc="Capacidades, rutas y seguimiento de ejecución." />
+        <Card to="/ventas" title="Ventas" icon={<ShoppingCart size={20} />} desc="Pedidos, confirmaciones y coordinación con producción." />
+      </div>
+    </main>
   );
 }
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route
-        path="/planificacion"
-        element={
-          <div>
-            <Planificacion />
-          </div>
-        }
-      />
-      <Route path="/diseno" element={<Placeholder title="Diseño" />} />
-      <Route path="/taller" element={<Placeholder title="Taller" />} />
-      <Route path="/ventas" element={<Placeholder title="Ventas" />} />
+      <Route path="/" element={<Shell><Home /></Shell>} />
+      <Route path="/planificacion" element={<Planificacion />} />
+      <Route path="/diseno" element={<Diseno />} />
+      <Route path="/taller" element={<Taller />} />
+      <Route path="/ventas" element={<Ventas />} />
     </Routes>
   );
 }
