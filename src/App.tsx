@@ -47,7 +47,11 @@ const toPdfHref = (s: string) => (s?.startsWith("data:") ? dataUrlToObjectUrl(s)
 
 // --- Helpers para subir PDF a Supabase (reemplaza al viejo uploadPdfToStorage) ---
 const slug = (s: string) =>
-  s.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9._-]/g, "");
+  s.toLowerCase().normalize("NFD")                 // separa letras y acentos
+    .replace(/[\u0300-\u036f]/g, "")  // quita acentos
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")// deja letras/números, punto, guion y guion bajo
+    .replace(/-+/g, "-")              // colapsa múltiples guiones
+    .replace(/(^-|-$)/g, "");
 
 async function uploadPdfToStorage(file: File, keyPrefix: string) {
   // keyPrefix: 'ones/<codigo>' o 'recs/<codigo>'
@@ -399,7 +403,8 @@ const submitOne = async (i: number) => {
 
   try {
     // 1) Subir PDF a Storage (ruta completa dentro del bucket)
-    const key = `ones/${t.code}/${Date.now()}_${safeName(t._draftPdfFile.name)}`;
+    const fileName = slugFileName(t._draftPdfFile.name);
+    const key = `ones/${t.code}/${Date.now()}_${fileName}`;
     const up = await uploadPdfToStorage(t._draftPdfFile, key);
     const now = new Date().toISOString();
 
@@ -450,7 +455,8 @@ const submitRecur = async (i: number) => {
 
   try {
     // 1) Subir PDF a Storage
-    const key = `recs/${r.code}/${Date.now()}_${safeName(r._draftPdfFile.name)}`;
+    const fileName = slugFileName(r._draftPdfFile.name);
+    const key = `recs/${r.code}/${Date.now()}_${fileName}`;
     const up = await uploadPdfToStorage(r._draftPdfFile, key);
     const now = new Date().toISOString();
 
