@@ -157,6 +157,68 @@ export default function Taller() {
         <h1 className="text-2xl font-semibold">Taller – Coordinación</h1>
       </header>
 
+
+      {/* Objetivo + Funciones clave */}
+      <section className="mx-auto max-w-[1400px] px-4 mb-6">
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3">
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: brand }}>
+              Objetivo
+            </h3>
+            <p className="text-neutral-200 mt-1">
+              Coordinar todo el flujo productivo, asegurando que los trabajos
+              tengan asignados recursos (MP, humanos y máquinas), tiempos y
+              prioridades antes de entrar en producción. Mejorar el flujo de
+              comunicación entre comercial y producción, e interno de la
+              producción. Velar por el cumplimiento de la planificación y
+              establecer gatillos de emergencia cuando no se cumple.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: brand }}>
+              Funciones clave
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-neutral-200">
+              <li>
+                <b>Ingreso y orden de trabajo:</b> centralizar pedidos; asignar
+                procesos/actividades (personas y máquinas con tiempos); asignar
+                fecha de entrega solicitada; clasificar por prioridad.
+              </li>
+              <li>
+                <b>Verificación de viabilidad:</b> confirmar disponibilidad de
+                papel y MP; revisar capacidad de máquinas y personal.
+              </li>
+              <li>
+                <b>Asignación de recursos:</b> definir máquinas y terminaciones
+                más eficientes (incluye tercerización si aplica); agrupar
+                trabajos similares.
+              </li>
+              <li>
+                <b>Definición de tiempos de entrega:</b> estimar tiempos reales
+                + margen; estándar y express.
+              </li>
+              <li>
+                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;
+                ajustar ante urgencias o bloqueos.
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: brand }}>
+              <a
+                target="_blank"
+                href="https://docs.google.com/document/d/1YriXyG9mRkxBuSuMWO1uXPZiAC8V8lTOz0_L-5YOaKc/edit?usp=sharing "
+                rel="noreferrer"
+              >
+                Más detalles click acá
+              </a>
+            </h3>
+          </div>
+        </div>
+      </section>
+
+      
+
       <main className="mx-auto max-w-[1400px] px-4 pb-20">
         <section className="mb-4">
           <h3 className="text-xl font-semibold mb-3">Cronograma (Gantt)</h3>

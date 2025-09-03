@@ -55,7 +55,10 @@ const recurBase: RecurItem[] = [
   {"code":"diseno_reunion_equipo","name":"Reuniones de equipo mensuales, con minutas y agenda. (Mensual)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Minuta de la reunión y agenda de la próxima"]},
   {"code":"diseno_reunion_1_a_1","name":"Reuniones 1 a 1, con minutas y agenda. (Cada 15 días)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Una reunón cada 15 días con 1 integrante (ir rotando el integrante). Minuta de la reunión y agenda de la próxima con ese integrante."]},
   {"code":"diseno_reunion_lider_y_segundo","name":"Reuniones entre líder y segundo (Semanal)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Minuta de la reunión y agenda de la próxima"]},
-  {"code":"diseno_festejo","name":"Establecer un festejo mensual, sobre acciones reales que hayan sucedido. (Cada 30 días)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Resumen del festejo realizado y los motivos"]}
+  {"code":"diseno_festejo","name":"Establecer un festejo mensual, sobre acciones reales que hayan sucedido. (Cada 30 días)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Resumen del festejo realizado y los motivos"]},
+  {"code":"diseno_festejo","name":"Porcentaje de actividades terminadas en el plazo estipulado. (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de trabajos realizados a tiempo / trabajos realizados. Cada semana se agrega un item a la misma gráfica"]},
+  {"code":"diseno_festejo","name":"Trabajos que se vuelven a imprimir (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de cantidad de trabajos que se vuelven a imprimir. Todas las semanas se agrega un item de cantidad."]},
+  {"code":"diseno_festejo","name":"Tiempo promedio de preprensa por trabajo. (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de Tiempo promedio de preprensa por trabajo. Todas las semanas se agrega un item de tiempo promedio"]}
 ];
 
 export default function Diseno() {
@@ -163,6 +166,62 @@ export default function Diseno() {
         <img src="/diagonal.png" alt="Diagonal" className="h-7 w-auto" />
         <h1 className="text-2xl font-semibold">Diseño – Coordinación</h1>
       </header>
+
+
+      {/* Objetivo + Funciones clave */}
+      <section className="mx-auto max-w-[1400px] px-4 mb-6">
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3">
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: brand }}>
+              Objetivo
+            </h3>
+            <p className="text-neutral-200 mt-1">
+              Velar por el correcto flujo productivo, siempre priorizando la satisfacción de nuestros clientes. Garantizar que todos los archivos lleguen a impresión a tiempo e imprimirlos en el caso de impresión digital, listos para pasar a terminación. En el caso de Offset dejarlos listos para imprimir con su chapa lista. Velar por la mejora continua del área, optimizando recursos de cara a dar una mejor atención a nuestros clientes. El orden y la limpieza resultan esenciales en este trabajo.
+            </p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: brand }}>
+              Funciones clave
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-neutral-200">
+              <li>
+                <b>Validación técnica de archivos:</b> Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar);
+                Corregir o devolver observaciones a ventas/clientes en menos de 24h.; Búsqueda por medio de automatizaciones el realizarlo en menos de medio día. Los de la mañana en la tarde, los de la tarde en la mañana.
+              </li>
+              <li>
+                <b>Preparación para impresión:</b> Imposición digital y salida a planchas para offset.; Preparación de archivos para impresión digital.
+              </li>
+              <li>
+                <b>Asignación de recursos:</b> definir máquinas y terminaciones
+                más eficientes (incluye tercerización si aplica); agrupar
+                trabajos similares.
+              </li>
+              <li>
+                <b>Comunicación con planificación:</b> Cumplir la secuencia y prioridad asignadas por planificación.;Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
+              </li>
+              <li>
+                <b>Optimización:</b> Agrupar planchas y colas digitales para reducir cambios de papel;
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold" style={{ color: brand }}>
+              <a
+                target="_blank"
+                href="https://docs.google.com/document/d/1YriXyG9mRkxBuSuMWO1uXPZiAC8V8lTOz0_L-5YOaKc/edit?usp=sharing "
+                rel="noreferrer"
+              >
+                Más detalles click acá
+              </a>
+            </h3>
+          </div>
+        </div>
+      </section>
+
+
+
+
+
 
       <main className="mx-auto max-w-[1400px] px-4 pb-20">
         <section className="mb-4">
