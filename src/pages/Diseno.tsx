@@ -176,7 +176,7 @@ export default function Diseno() {
               Objetivo
             </h3>
             <p className="text-neutral-200 mt-1">
-              Velar por el correcto flujo productivo, siempre priorizando la satisfacción de nuestros clientes.\n Garantizar que todos los archivos lleguen a impresión a tiempo e imprimirlos en el caso de impresión digital, listos para pasar a terminación. En el caso de Offset dejarlos listos para imprimir con su chapa lista. \n Velar por la mejora continua del área, optimizando recursos de cara a dar una mejor atención a nuestros clientes. \n El orden y la limpieza resultan esenciales en este trabajo.
+              Velar por el correcto flujo productivo, siempre priorizando la satisfacción de nuestros clientes.<br /> Garantizar que todos los archivos lleguen a impresión a tiempo e imprimirlos en el caso de impresión digital, listos para pasar a terminación. En el caso de Offset dejarlos listos para imprimir con su chapa lista. <br /> Velar por la mejora continua del área, optimizando recursos de cara a dar una mejor atención a nuestros clientes. <br /> El orden y la limpieza resultan esenciales en este trabajo.
             </p>
           </div>
           <div>
@@ -185,11 +185,11 @@ export default function Diseno() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Validación técnica de archivos:</b> Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar);
-                Corregir o devolver observaciones a ventas/clientes en menos de 24h.; Búsqueda por medio de automatizaciones el realizarlo en menos de medio día. Los de la mañana en la tarde, los de la tarde en la mañana.
+                <b>Validación técnica de archivos:</b> Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar); <br />
+                Corregir o devolver observaciones a ventas/clientes en menos de 24h. <br /> Búsqueda por medio de automatizaciones el realizarlo en menos de medio día. Los de la mañana en la tarde, los de la tarde en la mañana.
               </li>
               <li>
-                <b>Preparación para impresión:</b> Imposición digital y salida a planchas para offset.; Preparación de archivos para impresión digital.
+                <b>Preparación para impresión:</b> Imposición digital y salida a planchas para offset.;<br /> Preparación de archivos para impresión digital.
               </li>
               <li>
                 <b>Asignación de recursos:</b> definir máquinas y terminaciones
@@ -197,7 +197,7 @@ export default function Diseno() {
                 trabajos similares.
               </li>
               <li>
-                <b>Comunicación con planificación:</b> Cumplir la secuencia y prioridad asignadas por planificación.;Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
+                <b>Comunicación con planificación:</b> Cumplir la secuencia y prioridad asignadas por planificación.; <br /> Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
               </li>
             </ul>
           </div>
