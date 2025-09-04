@@ -170,13 +170,13 @@ export default function Diseno() {
 
       {/* Objetivo + Funciones clave */}
       <section className="mx-auto max-w-[1400px] px-4 mb-6">
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3">
+        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-4 space-y-3"  style={{ whiteSpace: "pre-line" }}>
           <div>
             <h3 className="text-lg font-semibold" style={{ color: brand }}>
               Objetivo
             </h3>
             <p className="text-neutral-200 mt-1">
-              Velar por el correcto flujo productivo, siempre priorizando la satisfacción de nuestros clientes. Garantizar que todos los archivos lleguen a impresión a tiempo e imprimirlos en el caso de impresión digital, listos para pasar a terminación. En el caso de Offset dejarlos listos para imprimir con su chapa lista. Velar por la mejora continua del área, optimizando recursos de cara a dar una mejor atención a nuestros clientes. El orden y la limpieza resultan esenciales en este trabajo.
+              Velar por el correcto flujo productivo, siempre priorizando la satisfacción de nuestros clientes.\n Garantizar que todos los archivos lleguen a impresión a tiempo e imprimirlos en el caso de impresión digital, listos para pasar a terminación. En el caso de Offset dejarlos listos para imprimir con su chapa lista. \n Velar por la mejora continua del área, optimizando recursos de cara a dar una mejor atención a nuestros clientes. \n El orden y la limpieza resultan esenciales en este trabajo.
             </p>
           </div>
           <div>

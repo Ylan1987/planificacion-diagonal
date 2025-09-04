@@ -744,7 +744,7 @@ export default function Planificacion() {
                 </div>
 
                 {open[i] && (
-                  <div className="mt-3 text-sm text-neutral-300">
+                  <div className="mt-3 text-sm text-neutral-300"  style={{ whiteSpace: "pre-line" }}>
                     <h5 className="font-semibold mb-1">Detalles</h5>
                     <ul className="list-disc pl-5 space-y-1">
                       {t.details.map((d) => (
