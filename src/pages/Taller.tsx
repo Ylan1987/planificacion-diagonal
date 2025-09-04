@@ -188,30 +188,30 @@ export default function Taller() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Recepción del trabajo impreso:</b> Revisar que las piezas lleguen en condiciones óptimas.;</br>
+                <b>Recepción del trabajo impreso:</b> Revisar que las piezas lleguen en condiciones óptimas.;<br />
                 Confirmar fecha de entrega y prioridad.;
               </li>
               <li>
-                <b>Recepción de chapas para su impresión:</b> Revisar que las piezas lleguen en condiciones óptimas.;</br>
-                Confirmar fecha de entrega y prioridad.;</br>
+                <b>Recepción de chapas para su impresión:</b> Revisar que las piezas lleguen en condiciones óptimas.;<br />
+                Confirmar fecha de entrega y prioridad.;<br />
                 Imprimir;
               </li>
               <li>
-                <b>Control de calidad:</b> Revisar que la cantidad y el acabado cumplan con lo solicitado.</br> 
-                Embalar y rotular correctamente para despacho. </br> 
+                <b>Control de calidad:</b> Revisar que la cantidad y el acabado cumplan con lo solicitado.<br /> 
+                Embalar y rotular correctamente para despacho. <br /> 
                 Tomas las fotos solicitadas por comercial.
 
               </li>
               <li>
-                <b>Comunicación con logística:</b> Avisar a planificación y ventas cuando el trabajo esté listo para entrega. </br>
+                <b>Comunicación con logística:</b> Avisar a planificación y ventas cuando el trabajo esté listo para entrega. <br />
                 Reportar problemas que puedan afectar el plazo.
               </li>
               <li>
-                <b>Definición de tiempos de entrega:</b> estimar tiempos reales
+                <b>Definición de tiempos de entrega:</b> estimar tiempos reales<br />
                 + margen; estándar y express.
               </li>
               <li>
-                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;
+                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;<br />
                 ajustar ante urgencias o bloqueos.
               </li>
             </ul>
