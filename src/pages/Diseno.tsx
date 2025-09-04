@@ -185,19 +185,19 @@ export default function Diseno() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Validación técnica de archivos:</b> Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar); <br />
+                <b>Validación técnica de archivos:</b> <br /> Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar); <br />
                 Corregir o devolver observaciones a ventas/clientes en menos de 24h. <br /> Búsqueda por medio de automatizaciones el realizarlo en menos de medio día. Los de la mañana en la tarde, los de la tarde en la mañana.
               </li>
               <li>
-                <b>Preparación para impresión:</b> Imposición digital y salida a planchas para offset.;<br /> Preparación de archivos para impresión digital.
+                <b>Preparación para impresión:</b><br />  Imposición digital y salida a planchas para offset.;<br /> Preparación de archivos para impresión digital.
               </li>
               <li>
-                <b>Asignación de recursos:</b> definir máquinas y terminaciones
+                <b>Asignación de recursos:</b><br />  definir máquinas y terminaciones
                 más eficientes (incluye tercerización si aplica); agrupar
                 trabajos similares.
               </li>
               <li>
-                <b>Comunicación con planificación:</b> Cumplir la secuencia y prioridad asignadas por planificación.; <br /> Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
+                <b>Comunicación con planificación:</b> <br /> Cumplir la secuencia y prioridad asignadas por planificación.; <br /> Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
               </li>
             </ul>
           </div>

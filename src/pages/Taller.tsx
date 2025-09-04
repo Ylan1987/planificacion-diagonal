@@ -179,12 +179,7 @@ export default function Taller() {
               Objetivo
             </h3>
             <p className="text-neutral-200 mt-1">
-              Coordinar todo el flujo productivo, asegurando que los trabajos
-              tengan asignados recursos (MP, humanos y máquinas), tiempos y
-              prioridades antes de entrar en producción. Mejorar el flujo de
-              comunicación entre comercial y producción, e interno de la
-              producción. Velar por el cumplimiento de la planificación y
-              establecer gatillos de emergencia cuando no se cumple.
+              Completar el trabajo con el acabado solicitado, manteniendo calidad y cumpliendo plazos. Optimizar el uso de nuestros recursos humanos. Velar por la conformidad y satisfacción de nuestros clientes. El orden y limpieza resultan fundamentales. La comunicación y flujo de información entre los 3 departamentos que hacen a la producción y el de presupuestos, resultará fundamental para la empresa.
             </p>
           </div>
           <div>
@@ -193,18 +188,23 @@ export default function Taller() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Ingreso y orden de trabajo:</b> centralizar pedidos; asignar
-                procesos/actividades (personas y máquinas con tiempos); asignar
-                fecha de entrega solicitada; clasificar por prioridad.
+                <b>Recepción del trabajo impreso:</b> Revisar que las piezas lleguen en condiciones óptimas.;</br>
+                Confirmar fecha de entrega y prioridad.;
               </li>
               <li>
-                <b>Verificación de viabilidad:</b> confirmar disponibilidad de
-                papel y MP; revisar capacidad de máquinas y personal.
+                <b>Recepción de chapas para su impresión:</b> Revisar que las piezas lleguen en condiciones óptimas.;</br>
+                Confirmar fecha de entrega y prioridad.;</br>
+                Imprimir;
               </li>
               <li>
-                <b>Asignación de recursos:</b> definir máquinas y terminaciones
-                más eficientes (incluye tercerización si aplica); agrupar
-                trabajos similares.
+                <b>Control de calidad:</b> Revisar que la cantidad y el acabado cumplan con lo solicitado.</br> 
+                Embalar y rotular correctamente para despacho. </br> 
+                Tomas las fotos solicitadas por comercial.
+
+              </li>
+              <li>
+                <b>Comunicación con logística:</b> Avisar a planificación y ventas cuando el trabajo esté listo para entrega. </br>
+                Reportar problemas que puedan afectar el plazo.
               </li>
               <li>
                 <b>Definición de tiempos de entrega:</b> estimar tiempos reales

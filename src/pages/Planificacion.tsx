@@ -537,9 +537,9 @@ export default function Planificacion() {
             <p className="text-neutral-200 mt-1">
               Coordinar todo el flujo productivo, asegurando que los trabajos
               tengan asignados recursos (MP, humanos y máquinas), tiempos y
-              prioridades antes de entrar en producción. Mejorar el flujo de
+              prioridades antes de entrar en producción. <br /> Mejorar el flujo de
               comunicación entre comercial y producción, e interno de la
-              producción. Velar por el cumplimiento de la planificación y
+              producción.<br /> Velar por el cumplimiento de la planificación y
               establecer gatillos de emergencia cuando no se cumple.
             </p>
           </div>
@@ -549,26 +549,25 @@ export default function Planificacion() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Ingreso y orden de trabajo:</b> centralizar pedidos; asignar
-                procesos/actividades (personas y máquinas con tiempos); asignar
-                fecha de entrega solicitada; clasificar por prioridad.
+                <b>Ingreso y orden de trabajo:</b><br />  centralizar pedidos; <br />asignar
+                procesos/actividades (personas y máquinas con tiempos); <br />asignar
+                fecha de entrega solicitada; <br />clasificar por prioridad.
               </li>
               <li>
-                <b>Verificación de viabilidad:</b> confirmar disponibilidad de
-                papel y MP; revisar capacidad de máquinas y personal.
+                <b>Verificación de viabilidad:</b><br />confirmar disponibilidad de
+                papel y MP; <br />revisar capacidad de máquinas y personal.
               </li>
               <li>
-                <b>Asignación de recursos:</b> definir máquinas y terminaciones
-                más eficientes (incluye tercerización si aplica); agrupar
+                <b>Asignación de recursos:</b><br /> definir máquinas y terminaciones
+                más eficientes (incluye tercerización si aplica); <br />agrupar
                 trabajos similares.
               </li>
               <li>
-                <b>Definición de tiempos de entrega:</b> estimar tiempos reales
-                + margen; estándar y express.
+                <b>Definición de tiempos de entrega:</b><br />estimar tiempos reales
+                + margen;<br />estándar y express.
               </li>
               <li>
-                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;
-                ajustar ante urgencias o bloqueos.
+                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;<br />ajustar ante urgencias o bloqueos.
               </li>
             </ul>
           </div>
