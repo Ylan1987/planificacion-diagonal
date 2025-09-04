@@ -41,24 +41,24 @@ type RecurItem = {
 
 const oneBase: Omit<OneShot,"draftDrive"|"draftPdf"|"pdf"|"driveLink"|"uploadedAt"|"_draftPdfFile">[] = [
   {"code":"diseno_validacion","name":"Establecer un procedimiento estándar para la validación de archivos.","resp":"Diseño","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,6).toISOString(),"details":["Entregable: Documento con check list de actividades según tipo de impresión (u otros a establecer)"]},
-  {"code":"diseno_validacion_automatica","name":"Automatizar lo máximo posible el procedimiento del punto 1 por medio de pit stop","resp":"Diseño","start":addDays(PROJECT_START,7).toISOString(),"end":addDays(PROJECT_START,27).toISOString(),"details":["Entregable: Cursos de pitstop terminados. Preflights creados en pitstop. Informe de la validación de archivos automatizado y validado con comercial."]},
-  {"code":"diseno_devolucion_de_archivos","name":"Establecer criterios de devolución de archivos a clientes.","resp":"Diseño","start":addDays(PROJECT_START,28).toISOString(),"end":addDays(PROJECT_START,34).toISOString(),"details":["Entregable: Acuerdo de criterio con comercial. Excel donde se documenten los archivos devueltos a clientes con el motivo."]},
+  {"code":"diseno_validacion_automatica","name":"Automatizar lo máximo posible el procedimiento del punto 1 por medio de pit stop","resp":"Diseño","start":addDays(PROJECT_START,7).toISOString(),"end":addDays(PROJECT_START,27).toISOString(),"details":["Entregable: Cursos de pitstop terminados.\nPreflights creados en pitstop.\nInforme de la validación de archivos automatizado y validado con comercial."]},
+  {"code":"diseno_devolucion_de_archivos","name":"Establecer criterios de devolución de archivos a clientes.","resp":"Diseño","start":addDays(PROJECT_START,28).toISOString(),"end":addDays(PROJECT_START,34).toISOString(),"details":["Entregable: Acuerdo de criterio con comercial.\nExcel donde se documenten los archivos devueltos a clientes con el motivo."]},
   {"code":"diseno_cuellos_botella","name":"Búsqueda de cuellos de botella (puntos rojos) en la operación diaria.","resp":"Diseño","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,20).toISOString(),"details":["Entregable:  Documento con cuellos de botella"]},
-  {"code":"diseno_automatizacion","name":"Búsqueda de capacitaciones para automatizar los puntos rojos y las actividades que se tercerizan","resp":"Diseño","start":addDays(PROJECT_START,21).toISOString(),"end":addDays(PROJECT_START,41).toISOString(),"details":["Entregable: Certificado de la capacitación realizada. Feedback de los participantes. Listado de habilidades o cuellos de botella resueltos."]},
+  {"code":"diseno_automatizacion","name":"Búsqueda de capacitaciones para automatizar los puntos rojos y las actividades que se tercerizan","resp":"Diseño","start":addDays(PROJECT_START,21).toISOString(),"end":addDays(PROJECT_START,41).toISOString(),"details":["Entregable: Certificado de la capacitación realizada.\nFeedback de los participantes.\nListado de habilidades o cuellos de botella resueltos."]},
   {"code":"diseno_digital_color","name":"Establecer una metodología de trabajo en impresión digital color. Similar a la de blanco y negro","resp":"Diseño","start":addDays(PROJECT_START,35).toISOString(),"end":addDays(PROJECT_START,41).toISOString(),"details":["Entregable: Documento con el procedimiento"]},
-  {"code":"diseno_orden","name":"Establecer criterios de orden y limpieza. Plan de stock y depósitos (Establecer stock mínimos y máximos, donde se almacenan, mesas de apoyo y lugar de pasaje libre. Responsable de su mantenimiento)","resp":"Diseño","start":addDays(PROJECT_START,42).toISOString(),"end":addDays(PROJECT_START,48).toISOString(),"details":["Entregable: Documento donde se establezca stock necesario, con su lugar. Piso marcado con lugares de tránsito. Mesas de apoyo y maquinas identificadas. Lugares de stock identificados con sus minimos y maximos."]},
+  {"code":"diseno_orden","name":"Establecer criterios de orden y limpieza. Plan de stock y depósitos (Establecer stock mínimos y máximos, donde se almacenan, mesas de apoyo y lugar de pasaje libre. Responsable de su mantenimiento)","resp":"Diseño","start":addDays(PROJECT_START,42).toISOString(),"end":addDays(PROJECT_START,48).toISOString(),"details":["Entregable: Documento donde se establezca stock necesario, con su lugar.\n Piso marcado con lugares de tránsito.\n Mesas de apoyo y maquinas identificadas.\n Lugares de stock identificados con sus minimos y maximos."]},
   {"code":"diseno_tercerizacion","name":"Establecer un procedimiento para la tercerización","resp":"Diseño","start":addDays(PROJECT_START,49).toISOString(),"end":addDays(PROJECT_START,55).toISOString(),"details":["Establecer una guía para la tercerización (orden de cómo se debe tercerizar). \n Establecer un lugar para documentar los tiempos que insumió la tercerización. \n Establecer en conjunto con comercial, pedidos que pueden ser tercerizados sin necesidad de pasar por diseño (creación de una preproducción que pueda ejecutar comercial, criterios claros de que si y que no, donde se documenta, etc). \n Entregables: Guía para la tercerización (que se terceriza donde, cual es el flujo para tercerizar, mails de ejemplo, coordinación de los envíos necesarios, etc). \n Excel para documentar tiempos de la tercerización, cuanto tiempo toman los trabajos. \n Acuerdo con comercial de productos tercerizables por ellos."]},
-  {"code":"diseno_diagramacion_estandar","name":"Establecer criterios de diagramación/armado para los 10 productos estándar (ver plan del área de planificación), coordinado con taller, para cada una de las variantes posibles.","resp":"Diseño + taller","start":addDays(PROJECT_START,56).toISOString(),"end":addDays(PROJECT_START,77).toISOString(),"details":[" Documento con lo pactado con el taller o terceros, según la ruta productiva. Plantillas estandarizadas."]}
+  {"code":"diseno_diagramacion_estandar","name":"Establecer criterios de diagramación/armado para los 10 productos estándar (ver plan del área de planificación), coordinado con taller, para cada una de las variantes posibles.","resp":"Diseño + taller","start":addDays(PROJECT_START,56).toISOString(),"end":addDays(PROJECT_START,77).toISOString(),"details":[" Documento con lo pactado con el taller o terceros, según la ruta productiva.\n Plantillas estandarizadas."]}
 ];
 
 const recurBase: RecurItem[] = [
   {"code":"diseno_reunion_equipo","name":"Reuniones de equipo mensuales, con minutas y agenda. (Mensual)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Minuta de la reunión y agenda de la próxima"]},
-  {"code":"diseno_reunion_1_a_1","name":"Reuniones 1 a 1, con minutas y agenda. (Cada 15 días)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Una reunón cada 15 días con 1 integrante (ir rotando el integrante). Minuta de la reunión y agenda de la próxima con ese integrante."]},
+  {"code":"diseno_reunion_1_a_1","name":"Reuniones 1 a 1, con minutas y agenda. (Cada 15 días)","freqDays":15,"nextAt":addDays(PROJECT_START,15).toISOString(),"history":[],"details":["Una reunón cada 15 días con 1 integrante (ir rotando el integrante).\n Minuta de la reunión y agenda de la próxima con ese integrante."]},
   {"code":"diseno_reunion_lider_y_segundo","name":"Reuniones entre líder y segundo (Semanal)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Minuta de la reunión y agenda de la próxima"]},
   {"code":"diseno_festejo","name":"Establecer un festejo mensual, sobre acciones reales que hayan sucedido. (Cada 30 días)","freqDays":30,"nextAt":addDays(PROJECT_START,30).toISOString(),"history":[],"details":["Resumen del festejo realizado y los motivos"]},
-  {"code":"diseno_festejo","name":"Porcentaje de actividades terminadas en el plazo estipulado. (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de trabajos realizados a tiempo / trabajos realizados. Cada semana se agrega un item a la misma gráfica"]},
-  {"code":"diseno_festejo","name":"Trabajos que se vuelven a imprimir (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de cantidad de trabajos que se vuelven a imprimir. Todas las semanas se agrega un item de cantidad."]},
-  {"code":"diseno_festejo","name":"Tiempo promedio de preprensa por trabajo. (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de Tiempo promedio de preprensa por trabajo. Todas las semanas se agrega un item de tiempo promedio"]}
+  {"code":"diseno_festejo","name":"Porcentaje de actividades terminadas en el plazo estipulado. (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de trabajos realizados a tiempo / trabajos realizados.\n Cada semana se agrega un item a la misma gráfica"]},
+  {"code":"diseno_festejo","name":"Trabajos que se vuelven a imprimir (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de cantidad de trabajos que se vuelven a imprimir.\n Todas las semanas se agrega un item de cantidad."]},
+  {"code":"diseno_festejo","name":"Tiempo promedio de preprensa por trabajo. (Cada 7 días)","freqDays":7,"nextAt":addDays(PROJECT_START,7).toISOString(),"history":[],"details":["Gráfica de Tiempo promedio de preprensa por trabajo.\n Todas las semanas se agrega un item de tiempo promedio"]}
 ];
 
 export default function Diseno() {
@@ -185,19 +185,25 @@ export default function Diseno() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Validación técnica de archivos:</b> <br /> Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar); <br />
-                Corregir o devolver observaciones a ventas/clientes en menos de 24h. <br /> Búsqueda por medio de automatizaciones el realizarlo en menos de medio día. Los de la mañana en la tarde, los de la tarde en la mañana.
+                <b>Validación técnica de archivos:</b><br />
+                Verificar resolución, sangrados, formatos y perfiles de color (según procedimiento estándar).<br />
+                Corregir o devolver observaciones a ventas/clientes en menos de 24h. <br />
+                Búsqueda por medio de automatizaciones el realizarlo en menos de medio día. Los de la mañana en la tarde, los de la tarde en la mañana.
               </li>
               <li>
-                <b>Preparación para impresión:</b><br />  Imposición digital y salida a planchas para offset.;<br /> Preparación de archivos para impresión digital.
+                <b>Preparación para impresión:</b><br />
+                Imposición digital y salida a planchas para offset.<br />
+                Preparación de archivos para impresión digital.
               </li>
               <li>
-                <b>Asignación de recursos:</b><br />  definir máquinas y terminaciones
-                más eficientes (incluye tercerización si aplica); agrupar
-                trabajos similares.
+                <b>Asignación de recursos:</b><br />
+                Definir máquinas y terminaciones más eficientes (incluye tercerización si aplica).<br />
+                Agrupar trabajos similares.
               </li>
               <li>
-                <b>Comunicación con planificación:</b> <br /> Cumplir la secuencia y prioridad asignadas por planificación.; <br /> Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
+                <b>Comunicación con planificación:</b> <br />
+                Cumplir la secuencia y prioridad asignadas por planificación.<br />
+                Confirmar las actividades no realizadas en el día, búsqueda de la mejora para lograr finalizarlas todas.
               </li>
             </ul>
           </div>

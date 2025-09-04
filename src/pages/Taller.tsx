@@ -42,9 +42,12 @@ type RecurItem = {
 const oneBase: Omit<OneShot,"draftDrive"|"draftPdf"|"pdf"|"driveLink"|"uploadedAt"|"_draftPdfFile">[] = [
   {"code":"taller_roles","name":"Escribir los roles de Ruben, Daniel y Fernando","resp":"Taller","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,6).toISOString(),"details":["Entregable: Roles de cada uno escritos y acuerdo."]},
   {"code":"taller_errores","name":"Registro de errores","resp":"Taller","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,6).toISOString(),"details":["Entregable: Planilla creada y validada con Ylan. Comunicado en reunión de equipo"]},
-  {"code":"taller_tareas","name":"Generar un listado de tareas que se realizan en el taller","resp":"Taller","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,6).toISOString(),"details":["Entregable: Excel con todas las tareas listadas. Estimación de tiempo de inicio, de trabajo según cantidad y de finalización. Cada tarea deberá tener un puntaje de dificultad"]},
+  {"code":"taller_tareas","name":"Generar un listado de tareas que se realizan en el taller","resp":"Taller","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,6).toISOString(),"details":["Entregable: Excel con todas las tareas listadas.\nEstimación de tiempo de inicio, de trabajo según cantidad y de finalización.\n Cada tarea deberá tener un puntaje de dificultad"]},
   {"code":"taller_habilidades","name":"Generar un mapa de habilidades por persona","resp":"Taller","start":addDays(PROJECT_START,0).toISOString(),"end":addDays(PROJECT_START,6).toISOString(),"details":["Entregable: Excel con todas las tareas que pueden realizar los integrantes del taller"]},
-  {"code":"taller_stock","name":"Control de stock","resp":"Taller","start":addDays(PROJECT_START,7).toISOString(),"end":addDays(PROJECT_START,13).toISOString(),"details":["Establecer según los lugares disponibles en la empresa y las necesidades de la misma, que stock maximo y minimo podemos tener de cada materia prima, estableciendo también el lugar donde debe estar. En caso de que separemos el stock a dos lugares (uno de facil acceso y otro con mas dificultad) tiene que estar claro el stock minimo y maximo de cada lugar. Una vez hecho el plan deberá ser aprobado, luego de eso establecer. 1. Encargado de hacer las compras cuando el stock llega al minimo 2. Encargado de mover la mercadería de un deposito al otro, cuando en el chico llega al minimo. 3. Poner carteleria clara de que materia prima va donde y su stock minimo y maximo. 4. En los lugares establecidos de atención al cliente, no puede haber mercadería en stock, puede estar en transito por maximo 24hs 5. Debe estar marcado en el piso, los lugares de tránsito (de personas o de mercadería) y los lugares donde puede apoyarse 6. Debe estar marcado y claro los lugares donde se recepciona mercadería y donde se despacha. Entregable: Excel con el listado de materias primas, su stock máximo y mínimo en cada depósito, estableciendo claramente donde se guarda. En ese mismo excel se deberá establecer responsable de compras, responsable de movimientos, fotos documentando la cartelería pegada en su lugar, fotos documentando los pisos marcados como corresponde, fotos documentando los lugares de despacho y recepción de mercadería."]},
+  {"code":"taller_stock","name":"Control de stock","resp":"Taller","start":addDays(PROJECT_START,7).toISOString(),"end":addDays(PROJECT_START,13).toISOString(),"details":["Establecer según los lugares disponibles en la empresa y las necesidades de la misma, que stock maximo y minimo podemos tener de cada materia prima, estableciendo también el lugar donde debe estar. \nEn caso de que separemos el stock a dos lugares (uno de facil acceso y otro con mas dificultad) tiene que estar claro el stock minimo y maximo de cada lugar. \nUna vez hecho el plan deberá ser aprobado, luego de eso establecer. \n1. Encargado de hacer las compras cuando el stock llega al minimo \n2. Encargado de mover la mercadería de un deposito al otro, cuando en el chico llega al minimo. \n3. Poner carteleria clara de que materia prima va donde y su stock minimo y maximo. \n4. En los lugares establecidos de atención al cliente, no puede haber mercadería en stock, puede estar en transito por maximo 24hs \n5. Debe estar marcado en el piso, los lugares de tránsito (de personas o de mercadería) y los lugares donde puede apoyarse \n6. Debe estar marcado y claro los lugares donde se recepciona mercadería y donde se despacha. \nEntregable: Excel con el listado de materias primas, su stock máximo y mínimo en cada depósito, estableciendo claramente donde se guarda. \nEn ese mismo excel se deberá establecer responsable de compras, responsable de movimientos, fotos documentando la cartelería pegada en su lugar, fotos documentando los pisos marcados como corresponde, fotos documentando los lugares de despacho y recepción de mercadería."]},
+
+
+
   {"code":"taller_transito","name":"Plan de pedidos en transito.","resp":"Taller","start":addDays(PROJECT_START,14).toISOString(),"end":addDays(PROJECT_START,20).toISOString(),"details":["Cada estación de trabajo debe tener su lugar para los pedidos que entran y salen. Debe estar indicado claramente cual es el lugar de entrada y salida a cada maquina, así como perfectamente identificada cada maquina. No podrá haber pedidos en transito fuera de esas áreas a menos que se este transportando en ese momento. Las áreas marcadas de tránsito deberán permanecer vacias en todo momento. salvo durante un transito. Las mesas de trabajo son de trabajo, no de apoyo, por lo cual en caso de requerir una zona para entrada o salida, deberá tener otra mesa o establecer de manera clara cual es zona de entrada, cual es zona de trabajo y cual es zona de salida. Todos los trabajos que esten en una zona de salida o de entrada, deben estar perfectamente identificados, que trabajo es, que cliente es, que cantidad hay. Las mesas de trabajo deberán permanecer vacias de cualquier pedido con el que no se este trabajadno en ese momento. Por lo cual al cortar un pedido se deberá de mover el mismo a la zona de entrada. Entregable: Fotos documentales de cada máquina con su cartelería (nombre de máquina, zona de entrada y zona de salida), fotos documentales con las zonas de tránsito marcadas."]},
   {"code":"taller_deposito","name":"Plan de deposito","resp":"Taller","start":addDays(PROJECT_START,21).toISOString(),"end":addDays(PROJECT_START,27).toISOString(),"details":["El deposito deberá estar dividido en 3 grandes áreas. 1. Materia prima 2. Productos intermedios 3. Productos terminados. Las 3 áreas deberán estar perfectamente identificadas (los cuartitos del taller son depositos, donde se guarda el rulo en el taller tambien, los placares de diseño también, el piso de arriba obviamente tambien) En los depositos de bajo transito, deberá haber un listado de lo que hay (pedidos terminados deberá contener nombre de cliente, tipo de trabajo y cantidad). En los intermedios si son de un cliente lo mismo que el anterior, pero agregarle que proceso le falta para estar pronto. Los productos intermedios genericos (papel cortado, interior estándar etc) y la materia prima, debera constar la cantidad que hay en ese deposito, su stock minimo y maximo. Cada vez que se retira o ingresa parte del stock, deberá haber en la planilla un lugar para indicar la cantidad retirada, fecha y quien realizo el retiro. En caso de dar quiebre al stock minimo, se deberá dar aviso al encargado de reponer. Entregable: Fotos documentales del deposito donde este claro que tipo de deposito es y las planillas con las cantidades y lugar para marcar entrada y salida"]},
   {"code":"taller_productividad","name":"Medición de productividad","resp":"Taller","start":addDays(PROJECT_START,7).toISOString(),"end":addDays(PROJECT_START,13).toISOString(),"details":["Usar la definición de distintos tipos de tareas marcados en el P4. Establecer un lugar claro donde se pueda reportar: Fecha, hora de inicio, hora de fin, tarea realizada (del listado anterior), Numero de Pedido, Cantidad realizada. Poder sacar reportes de tiempos por tipo de tarea (divididos en tiempo de inicio (lectura de orden de trabajo, acomodo de la zona, busqueda de materiales, etc), tiempo de fin (limpieza, movimiento a la siguiente estacion etc), tiempo de trabajo). Poder sacar reportes por pedido Poder sacar reportes por persona."]},
@@ -188,31 +191,26 @@ export default function Taller() {
             </h3>
             <ul className="list-disc pl-5 space-y-1 text-neutral-200">
               <li>
-                <b>Recepción del trabajo impreso:</b> Revisar que las piezas lleguen en condiciones óptimas.;<br />
-                Confirmar fecha de entrega y prioridad.;
+                <b>Recepción del trabajo impreso:</b><br />
+                Revisar que las piezas lleguen en condiciones óptimas.<br />
+                Confirmar fecha de entrega y prioridad.
               </li>
               <li>
-                <b>Recepción de chapas para su impresión:</b> Revisar que las piezas lleguen en condiciones óptimas.;<br />
-                Confirmar fecha de entrega y prioridad.;<br />
+                <b>Recepción de chapas para su impresión:</b><br />
+                Revisar que las piezas lleguen en condiciones óptimas.<br />
+                Confirmar fecha de entrega y prioridad.<br />
                 Imprimir;
               </li>
               <li>
-                <b>Control de calidad:</b> Revisar que la cantidad y el acabado cumplan con lo solicitado.<br /> 
-                Embalar y rotular correctamente para despacho. <br /> 
+                <b>Control de calidad:</b><br />
+                Revisar que la cantidad y el acabado cumplan con lo solicitado.<br /> 
+                Embalar y rotular correctamente para despacho.<br /> 
                 Tomas las fotos solicitadas por comercial.
-
               </li>
               <li>
-                <b>Comunicación con logística:</b> Avisar a planificación y ventas cuando el trabajo esté listo para entrega. <br />
+                <b>Comunicación con logística:</b><br />
+                Avisar a planificación y ventas cuando el trabajo esté listo para entrega.<br />
                 Reportar problemas que puedan afectar el plazo.
-              </li>
-              <li>
-                <b>Definición de tiempos de entrega:</b> estimar tiempos reales<br />
-                + margen; estándar y express.
-              </li>
-              <li>
-                <b>Seguimiento y ajuste:</b> reunión diaria de coordinación;<br />
-                ajustar ante urgencias o bloqueos.
               </li>
             </ul>
           </div>
