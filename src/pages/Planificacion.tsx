@@ -83,15 +83,7 @@ type OneShot = {
 };
 
 type RecurItem = {
-  code:
-    | "otd"
-    | "lead"
-    | "changelog"
-    | "third30"
-    | "min_daily"
-    | "min_mma_mon"
-    | "min_mma_thu"
-    | "min_prod";
+  code: string;
   name: string;
   freqDays: number;
   nextAt: string;
@@ -175,7 +167,7 @@ const oneBase: Omit<
 
 const recurBase: RecurItem[] = [
   {
-    code: "plan_otd",
+    code: "plan_cumplimiento_entregas",
     name: "Gráfica de cumplimiento de fecha de entrega (Semanal)",
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
@@ -189,7 +181,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "plan_lead",
+    code: "plan_tiempo_en_planificacion",
     name: "Tiempo promedio de pedidos en Planificación (Semanal)",
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
@@ -202,7 +194,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "plan_changelog",
+    code: "plan_productividad_mejorada",
     name: "Cambios en tiempos de actividades del taller (Cada 15 días)",
     freqDays: 15,
     nextAt: addDays(PROJECT_START, 15).toISOString(),
@@ -215,7 +207,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "plan_third30",
+    code: "plan_tercerizados_mejorados",
     name: "Chequeo de tercerizados (Cada 30 días)",
     freqDays: 30,
     nextAt: addDays(PROJECT_START, 30).toISOString(),
@@ -229,7 +221,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "min_daily",
+    code: "plan_reuniones_coordinacion",
     name: "Minuta reunión diaria de coordinación (Diaria)",
     freqDays: 1,
     nextAt: PROJECT_START.toISOString(),
@@ -242,7 +234,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "min_mma_mon",
+    code: "plan_reuniones_mma_lunes",
     name: "Minuta MMA – Lunes (Semanal)",
     freqDays: 7,
     nextAt: nextWeekday(PROJECT_START, 1).toISOString(),
@@ -255,7 +247,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "min_mma_thu",
+    code: "plan_reuniones_mma_jueves",
     name: "Minuta MMA – Jueves (Semanal)",
     freqDays: 7,
     nextAt: nextWeekday(PROJECT_START, 4).toISOString(),
@@ -268,8 +260,8 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "min_prod",
-    name: "Minuta reunión de Producción (Semanal)",
+    code: "plan_reuniones_produccion",
+    name: "Minuta reunión de Producción coordinadora con lideres y segundos (Semanal)",
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
     draftDrive: "",
