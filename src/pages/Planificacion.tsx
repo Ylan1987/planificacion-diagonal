@@ -113,7 +113,7 @@ const oneBase: Omit<
   "draftDrive" | "draftPdf" | "pdf" | "driveLink" | "uploadedAt" | "_draftPdfFile"
 >[] = [
   {
-    code: "prod10",
+    code: "plan_prod10",
     name: "Elegir 10 productos (coord. Comercial)",
     resp: "Planificación + Comercial",
     start: addDays(PROJECT_START, 0).toISOString(),
@@ -124,7 +124,7 @@ const oneBase: Omit<
     ],
   },
   {
-    code: "variantes",
+    code: "plan_variantes",
     name: "Establecer variantes / características",
     resp: "Planificación",
     dep: "Dep.: Elegir 10 productos",
@@ -133,7 +133,7 @@ const oneBase: Omit<
     details: ["Documento de variantes (similar clientes chicos)."],
   },
   {
-    code: "tiempos",
+    code: "plan_tiempos",
     name: "Definir tiempos de entrega (estándar & express)",
     resp: "Producción + Planificación + Comercial",
     dep: "Dep.: Variantes/Características",
@@ -142,7 +142,7 @@ const oneBase: Omit<
     details: ["Excel para prometer fechas (estándar/express)."],
   },
   {
-    code: "rutas",
+    code: "plan_rutas",
     name: "Rutas productivas + planes B (10 prod x variantes)",
     resp: "Producción (Mandos Medios)",
     dep: "Dep.: Tiempos de entrega",
@@ -151,7 +151,7 @@ const oneBase: Omit<
     details: ["Diagramas de flujo por producto + plan B."],
   },
   {
-    code: "taller",
+    code: "plan_taller",
     name: "Actividades de taller y tiempos por máquina",
     resp: "Producción",
     dep: "Dep.: Rutas productivas",
@@ -163,7 +163,7 @@ const oneBase: Omit<
   },
   // Paralela desde S2 (1 semana)
   {
-    code: "tercerizados_listado",
+    code: "plan_tercerizados_listado",
     name: "Listar actividades tercerizadas (con Pablo) + tiempos",
     resp: "Producción + Pablo",
     dep: "Corre en paralelo desde S2",
@@ -175,7 +175,7 @@ const oneBase: Omit<
 
 const recurBase: RecurItem[] = [
   {
-    code: "otd",
+    code: "plan_otd",
     name: "Gráfica de cumplimiento de fecha de entrega (Semanal)",
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
@@ -189,7 +189,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "lead",
+    code: "plan_lead",
     name: "Tiempo promedio de pedidos en Planificación (Semanal)",
     freqDays: 7,
     nextAt: addDays(PROJECT_START, 7).toISOString(),
@@ -202,7 +202,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "changelog",
+    code: "plan_changelog",
     name: "Cambios en tiempos de actividades del taller (Cada 15 días)",
     freqDays: 15,
     nextAt: addDays(PROJECT_START, 15).toISOString(),
@@ -215,7 +215,7 @@ const recurBase: RecurItem[] = [
     ],
   },
   {
-    code: "third30",
+    code: "plan_third30",
     name: "Chequeo de tercerizados (Cada 30 días)",
     freqDays: 30,
     nextAt: addDays(PROJECT_START, 30).toISOString(),
